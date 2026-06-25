@@ -1,6 +1,6 @@
 # Modular Fish Robot – ME-425 Robotics Practicals
 
-![Graph](salamandra2.png)
+![Graph](salamandra2.jpg)
 
 Programming, control, and experimental characterization of a modular lamprey-inspired swimming robot using embedded C/C++, PC-side C++ control software, and vision-based tracking. Robot is the Salamandra robotica of the EPFL BioRob Laboratory.
 
