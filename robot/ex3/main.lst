@@ -1,0 +1,324 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.align	2
+  18              		.syntax unified
+  19              		.arm
+  21              	register_handler:
+  22              	.LVL0:
+  23              	.LFB0:
+  24              		.file 1 "main.c"
+   1:main.c        **** #include "hardware.h"
+   2:main.c        **** #include "module.h"
+   3:main.c        **** #include "robot.h"
+   4:main.c        **** #include "registers.h"
+   5:main.c        **** 
+   6:main.c        **** #define POS_NB 4
+   7:main.c        **** 
+   8:main.c        **** const uint8_t TAIL_ADDR = 21;
+   9:main.c        **** const uint8_t BODY_ADDR = 72;
+  10:main.c        **** static uint8_t pos_size = 4;
+  11:main.c        **** static int8_t mb_pos[POS_NB];
+  12:main.c        **** 
+  13:main.c        **** static int8_t register_handler(uint8_t operation, uint8_t address, RadioData* radio_data) 
+  14:main.c        **** {
+  25              		.loc 1 14 1 view -0
+  26              		.cfi_startproc
+  27              		@ Function supports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  15:main.c        ****   uint8_t i;
+  31              		.loc 1 15 3 view .LVU1
+  16:main.c        **** 
+  17:main.c        ****   switch (operation)
+  32              		.loc 1 17 3 view .LVU2
+  18:main.c        ****   {
+  19:main.c        ****     case ROP_READ_MB:
+  20:main.c        ****       if (address == 2) {
+  33              		.loc 1 20 7 view .LVU3
+  34              		.loc 1 20 10 is_stmt 0 view .LVU4
+  35 0000 020051E3 		cmp	r1, #2
+  36 0004 03005003 		cmpeq	r0, #3
+  37 0008 0100A003 		moveq	r0, #1
+  38              	.LVL1:
+  39              		.loc 1 20 10 view .LVU5
+  40 000c 0000A013 		movne	r0, #0
+  41 0010 1EFF2F11 		bxne	lr
+  42              	.LVL2:
+  43              	.LBB4:
+  44              	.LBI4:
+  13:main.c        **** {
+  45              		.loc 1 13 15 is_stmt 1 view .LVU6
+  46              	.LBB5:
+  21:main.c        ****         radio_data->multibyte.size = pos_size;
+  47              		.loc 1 21 9 view .LVU7
+  48              		.loc 1 21 36 is_stmt 0 view .LVU8
+  49 0014 0430A0E3 		mov	r3, #4
+  50 0018 0030C2E5 		strb	r3, [r2]
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  51              		.loc 1 22 9 is_stmt 1 view .LVU9
+  52              	.LVL3:
+  53              		.loc 1 22 21 view .LVU10
+  23:main.c        ****           radio_data->multibyte.data[i] = mb_pos[i];
+  54              		.loc 1 23 11 view .LVU11
+  55              		.loc 1 23 49 is_stmt 0 view .LVU12
+  56 001c 24309FE5 		ldr	r3, .L4
+  57              		.loc 1 23 41 view .LVU13
+  58 0020 0010D3E5 		ldrb	r1, [r3]	@ zero_extendqisi2
+  59              	.LVL4:
+  60              		.loc 1 23 41 view .LVU14
+  61 0024 0110C2E5 		strb	r1, [r2, #1]
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  62              		.loc 1 22 35 is_stmt 1 view .LVU15
+  63              	.LVL5:
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  64              		.loc 1 22 21 view .LVU16
+  65              		.loc 1 23 11 view .LVU17
+  66              		.loc 1 23 41 is_stmt 0 view .LVU18
+  67 0028 0110D3E5 		ldrb	r1, [r3, #1]	@ zero_extendqisi2
+  68 002c 0210C2E5 		strb	r1, [r2, #2]
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  69              		.loc 1 22 35 is_stmt 1 view .LVU19
+  70              	.LVL6:
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  71              		.loc 1 22 21 view .LVU20
+  72              		.loc 1 23 11 view .LVU21
+  73              		.loc 1 23 41 is_stmt 0 view .LVU22
+  74 0030 0210D3E5 		ldrb	r1, [r3, #2]	@ zero_extendqisi2
+  75 0034 0330D3E5 		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+  76 0038 0100A0E3 		mov	r0, #1
+  77 003c 0310C2E5 		strb	r1, [r2, #3]
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  78              		.loc 1 22 35 is_stmt 1 view .LVU23
+  79              	.LVL7:
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  80              		.loc 1 22 21 view .LVU24
+  81              		.loc 1 23 11 view .LVU25
+  82              		.loc 1 23 41 is_stmt 0 view .LVU26
+  83 0040 0430C2E5 		strb	r3, [r2, #4]
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  84              		.loc 1 22 35 is_stmt 1 view .LVU27
+  85              	.LVL8:
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  86              		.loc 1 22 21 view .LVU28
+  22:main.c        ****         for (i = 0; i < pos_size; i++) {
+  87              		.loc 1 22 21 is_stmt 0 view .LVU29
+  88              	.LBE5:
+  89              	.LBE4:
+  24:main.c        ****         }
+  25:main.c        ****         return TRUE;
+  26:main.c        ****       }
+  27:main.c        ****       break;
+  28:main.c        ****   }
+  29:main.c        ****   return FALSE;
+  30:main.c        **** }
+  90              		.loc 1 30 1 view .LVU30
+  91 0044 1EFF2FE1 		bx	lr
+  92              	.L5:
+  93              		.align	2
+  94              	.L4:
+  95 0048 00000000 		.word	.LANCHOR0
+  96              		.cfi_endproc
+  97              	.LFE0:
+  99              		.section	.text.startup,"ax",%progbits
+ 100              		.align	2
+ 101              		.global	main
+ 102              		.syntax unified
+ 103              		.arm
+ 105              	main:
+ 106              	.LFB1:
+  31:main.c        **** 
+  32:main.c        **** 
+  33:main.c        **** 
+  34:main.c        **** int main(void)
+  35:main.c        **** {
+ 107              		.loc 1 35 1 is_stmt 1 view -0
+ 108              		.cfi_startproc
+ 109              		@ Function supports interworking.
+ 110              		@ Volatile: function does not return.
+ 111              		@ args = 0, pretend = 0, frame = 0
+ 112              		@ frame_needed = 0, uses_anonymous_args = 0
+  36:main.c        ****   int8_t pos;
+ 113              		.loc 1 36 3 view .LVU32
+  37:main.c        **** 
+  38:main.c        ****   hardware_init();
+ 114              		.loc 1 38 3 view .LVU33
+  35:main.c        ****   int8_t pos;
+ 115              		.loc 1 35 1 is_stmt 0 view .LVU34
+ 116 0000 10402DE9 		push	{r4, lr}
+ 117              	.LCFI0:
+ 118              		.cfi_def_cfa_offset 8
+ 119              		.cfi_offset 4, -8
+ 120              		.cfi_offset 14, -4
+ 121              		.loc 1 38 3 view .LVU35
+ 122 0004 FEFFFFEB 		bl	hardware_init
+ 123              	.LVL9:
+  39:main.c        **** 
+  40:main.c        ****   // Registers the register handler callback function
+  41:main.c        ****   radio_add_reg_callback(register_handler);
+ 124              		.loc 1 41 3 is_stmt 1 view .LVU36
+ 125 0008 88009FE5 		ldr	r0, .L9
+ 126 000c FEFFFFEB 		bl	radio_add_reg_callback
+ 127              	.LVL10:
+  42:main.c        ****   
+  43:main.c        ****   // Changes the color of the led (first red then green) to show the boot
+  44:main.c        ****   // and then say that the module is ready.
+  45:main.c        ****   set_color_i(4, 0);
+ 128              		.loc 1 45 3 view .LVU37
+ 129 0010 0010A0E3 		mov	r1, #0
+ 130 0014 0400A0E3 		mov	r0, #4
+ 131 0018 FEFFFFEB 		bl	set_color_i
+ 132              	.LVL11:
+  46:main.c        ****   pause(ONE_SEC);
+ 133              		.loc 1 46 3 view .LVU38
+ 134 001c 78009FE5 		ldr	r0, .L9+4
+ 135 0020 FEFFFFEB 		bl	pause
+ 136              	.LVL12:
+  47:main.c        ****   set_color_i(2, 0);
+ 137              		.loc 1 47 3 view .LVU39
+ 138 0024 0010A0E3 		mov	r1, #0
+ 139 0028 0200A0E3 		mov	r0, #2
+ 140 002c FEFFFFEB 		bl	set_color_i
+ 141              	.LVL13:
+  48:main.c        ****   
+  49:main.c        **** 
+  50:main.c        ****   // Initialises the body module with the specified address (but do not start
+  51:main.c        ****   // the PD controller)
+  52:main.c        ****   init_body_module(TAIL_ADDR);
+ 142              		.loc 1 52 3 view .LVU40
+ 143 0030 1500A0E3 		mov	r0, #21
+ 144 0034 FEFFFFEB 		bl	init_body_module
+ 145              	.LVL14:
+  53:main.c        ****   init_body_module(BODY_ADDR);
+ 146              		.loc 1 53 3 view .LVU41
+ 147 0038 4800A0E3 		mov	r0, #72
+ 148 003c FEFFFFEB 		bl	init_body_module
+ 149              	.LVL15:
+  54:main.c        ****   init_limb_module(BODY_ADDR + 1);
+ 150              		.loc 1 54 3 view .LVU42
+ 151 0040 4900A0E3 		mov	r0, #73
+ 152 0044 FEFFFFEB 		bl	init_limb_module
+ 153              	.LVL16:
+  55:main.c        ****   init_limb_module(BODY_ADDR + 2);
+ 154              		.loc 1 55 3 view .LVU43
+ 155 0048 4A00A0E3 		mov	r0, #74
+ 156 004c FEFFFFEB 		bl	init_limb_module
+ 157              	.LVL17:
+  56:main.c        **** 
+  57:main.c        **** 
+  58:main.c        ****   
+  59:main.c        ****   // And then... do this
+  60:main.c        ****   while (1) {
+  61:main.c        **** 
+  62:main.c        ****     mb_pos[0] = bus_get(TAIL_ADDR, MREG_POSITION);
+ 158              		.loc 1 62 15 is_stmt 0 view .LVU44
+ 159 0050 48409FE5 		ldr	r4, .L9+8
+ 160              	.L7:
+  60:main.c        **** 
+ 161              		.loc 1 60 3 is_stmt 1 discriminator 1 view .LVU45
+ 162              		.loc 1 62 5 discriminator 1 view .LVU46
+ 163              		.loc 1 62 17 is_stmt 0 discriminator 1 view .LVU47
+ 164 0054 3010A0E3 		mov	r1, #48
+ 165 0058 1500A0E3 		mov	r0, #21
+ 166 005c FEFFFFEB 		bl	bus_get
+ 167              	.LVL18:
+  63:main.c        ****     mb_pos[1] = bus_get(BODY_ADDR, MREG_POSITION);
+ 168              		.loc 1 63 17 discriminator 1 view .LVU48
+ 169 0060 3010A0E3 		mov	r1, #48
+  62:main.c        ****     mb_pos[1] = bus_get(BODY_ADDR, MREG_POSITION);
+ 170              		.loc 1 62 15 discriminator 1 view .LVU49
+ 171 0064 0000C4E5 		strb	r0, [r4]
+ 172              		.loc 1 63 5 is_stmt 1 discriminator 1 view .LVU50
+ 173              		.loc 1 63 17 is_stmt 0 discriminator 1 view .LVU51
+ 174 0068 4800A0E3 		mov	r0, #72
+ 175 006c FEFFFFEB 		bl	bus_get
+ 176              	.LVL19:
+  64:main.c        ****     mb_pos[2] = bus_get(BODY_ADDR+1, MREG_POSITION);
+ 177              		.loc 1 64 17 discriminator 1 view .LVU52
+ 178 0070 3010A0E3 		mov	r1, #48
+  63:main.c        ****     mb_pos[1] = bus_get(BODY_ADDR, MREG_POSITION);
+ 179              		.loc 1 63 15 discriminator 1 view .LVU53
+ 180 0074 0100C4E5 		strb	r0, [r4, #1]
+ 181              		.loc 1 64 5 is_stmt 1 discriminator 1 view .LVU54
+ 182              		.loc 1 64 17 is_stmt 0 discriminator 1 view .LVU55
+ 183 0078 4900A0E3 		mov	r0, #73
+ 184 007c FEFFFFEB 		bl	bus_get
+ 185              	.LVL20:
+  65:main.c        ****     mb_pos[3] = bus_get(BODY_ADDR+2, MREG_POSITION);
+ 186              		.loc 1 65 17 discriminator 1 view .LVU56
+ 187 0080 3010A0E3 		mov	r1, #48
+  64:main.c        ****     mb_pos[2] = bus_get(BODY_ADDR+1, MREG_POSITION);
+ 188              		.loc 1 64 15 discriminator 1 view .LVU57
+ 189 0084 0200C4E5 		strb	r0, [r4, #2]
+ 190              		.loc 1 65 5 is_stmt 1 discriminator 1 view .LVU58
+ 191              		.loc 1 65 17 is_stmt 0 discriminator 1 view .LVU59
+ 192 0088 4A00A0E3 		mov	r0, #74
+ 193 008c FEFFFFEB 		bl	bus_get
+ 194              	.LVL21:
+ 195              		.loc 1 65 15 discriminator 1 view .LVU60
+ 196 0090 0300C4E5 		strb	r0, [r4, #3]
+  60:main.c        **** 
+ 197              		.loc 1 60 9 is_stmt 1 discriminator 1 view .LVU61
+ 198 0094 EEFFFFEA 		b	.L7
+ 199              	.L10:
+ 200              		.align	2
+ 201              	.L9:
+ 202 0098 00000000 		.word	register_handler
+ 203 009c 80969800 		.word	10000000
+ 204 00a0 00000000 		.word	.LANCHOR0
+ 205              		.cfi_endproc
+ 206              	.LFE1:
+ 208              		.global	BODY_ADDR
+ 209              		.global	TAIL_ADDR
+ 210              		.section	.rodata
+ 213              	BODY_ADDR:
+ 214 0000 48       		.byte	72
+ 217              	TAIL_ADDR:
+ 218 0001 15       		.byte	21
+ 219              		.bss
+ 220              		.set	.LANCHOR0,. + 0
+ 223              	mb_pos:
+ 224 0000 00000000 		.space	4
+ 225              		.text
+ 226              	.Letext0:
+ 227              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 228              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 229              		.file 4 "../firmware/radio.h"
+ 230              		.file 5 "../firmware/hardware.h"
+ 231              		.file 6 "../firmware/sysTime.h"
+ 232              		.file 7 "../firmware/robot.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:17     .text:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:21     .text:00000000 register_handler
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:95     .text:00000048 $d
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:100    .text.startup:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:105    .text.startup:00000000 main
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:202    .text.startup:00000098 $d
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:213    .rodata:00000000 BODY_ADDR
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:217    .rodata:00000001 TAIL_ADDR
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:223    .bss:00000000 mb_pos
+C:\Users\vlabbe\AppData\Local\Temp\cceMTz5r.s:224    .bss:00000000 $d
+
+UNDEFINED SYMBOLS
+hardware_init
+radio_add_reg_callback
+set_color_i
+pause
+init_body_module
+init_limb_module
+bus_get

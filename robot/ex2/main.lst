@@ -1,0 +1,527 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.align	2
+  18              		.syntax unified
+  19              		.arm
+  21              	register_handler:
+  22              	.LVL0:
+  23              	.LFB0:
+  24              		.file 1 "main.c"
+   1:main.c        **** #include "hardware.h"
+   2:main.c        **** #include "registers.h"
+   3:main.c        **** 
+   4:main.c        **** static uint32_t datavar = 0;
+   5:main.c        **** static uint8_t last_mb_size = 0;
+   6:main.c        **** static uint8_t counter = 0;
+   7:main.c        **** static uint8_t mb_buffer[MAX_MB_SIZE];
+   8:main.c        **** 
+   9:main.c        **** /* Register callback function, handles some new registers on the radio.
+  10:main.c        ****  * All these registers are of course completely useless, but it demonstrates how
+  11:main.c        ****  * to implement a register callback function, and what it can do.
+  12:main.c        ****  */
+  13:main.c        **** static int8_t register_handler(uint8_t operation, uint8_t address, RadioData* radio_data)
+  14:main.c        **** {
+  25              		.loc 1 14 1 view -0
+  26              		.cfi_startproc
+  27              		@ Function supports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  15:main.c        ****   uint8_t i;
+  30              		.loc 1 15 3 view .LVU1
+  16:main.c        ****   
+  17:main.c        ****   switch (operation)
+  31              		.loc 1 17 3 view .LVU2
+  14:main.c        ****   uint8_t i;
+  32              		.loc 1 14 1 is_stmt 0 view .LVU3
+  33 0000 0230A0E1 		mov	r3, r2
+  34              		.loc 1 17 3 view .LVU4
+  35 0004 070050E3 		cmp	r0, #7
+  36 0008 00F19F97 		ldrls	pc, [pc, r0, asl #2]
+  37 000c 4B0000EA 		b	.L19
+  38              	.L4:
+  39 0010 30000000 		.word	.L9
+  40 0014 40010000 		.word	.L19
+  41 0018 78000000 		.word	.L8
+  42 001c 90000000 		.word	.L7
+  43 0020 C0000000 		.word	.L6
+  44 0024 E0000000 		.word	.L5
+  45 0028 40010000 		.word	.L19
+  46 002c 04010000 		.word	.L3
+  47              	.L9:
+  18:main.c        ****   {
+  19:main.c        ****     case ROP_READ_8:
+  20:main.c        ****       if (address == 6) {
+  48              		.loc 1 20 7 is_stmt 1 view .LVU5
+  49              		.loc 1 20 10 is_stmt 0 view .LVU6
+  50 0030 060051E3 		cmp	r1, #6
+  51 0034 0600001A 		bne	.L10
+  21:main.c        ****         radio_data->byte = counter;
+  52              		.loc 1 21 9 is_stmt 1 view .LVU7
+  53              		.loc 1 21 26 is_stmt 0 view .LVU8
+  54 0038 08219FE5 		ldr	r2, .L25
+  55              	.LVL1:
+  56              		.loc 1 21 26 view .LVU9
+  57 003c 0010D2E5 		ldrb	r1, [r2]	@ zero_extendqisi2
+  58              	.LVL2:
+  59              		.loc 1 21 26 view .LVU10
+  60 0040 0010C3E5 		strb	r1, [r3]
+  22:main.c        ****         counter = 0;
+  61              		.loc 1 22 9 is_stmt 1 view .LVU11
+  62              		.loc 1 22 17 is_stmt 0 view .LVU12
+  63 0044 0030A0E3 		mov	r3, #0
+  64              	.LVL3:
+  65              		.loc 1 22 17 view .LVU13
+  66 0048 0030C2E5 		strb	r3, [r2]
+  23:main.c        ****         return TRUE;
+  67              		.loc 1 23 9 is_stmt 1 view .LVU14
+  68              	.LVL4:
+  69              	.L22:
+  24:main.c        ****       } else if (address == 21) {
+  25:main.c        ****         counter++;
+  26:main.c        ****         radio_data->byte = 0x42;
+  27:main.c        ****         return TRUE;
+  28:main.c        ****       }
+  29:main.c        ****       break;
+  30:main.c        ****     case ROP_READ_32:
+  31:main.c        ****       if (address == 2) {
+  32:main.c        ****         radio_data->dword = datavar;
+  33:main.c        ****         return TRUE;
+  34:main.c        ****       }
+  35:main.c        ****       break;
+  36:main.c        ****     case ROP_READ_MB:
+  37:main.c        ****       if (address == 2) {
+  38:main.c        ****         radio_data->multibyte.size = last_mb_size;
+  39:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+  40:main.c        ****           radio_data->multibyte.data[i] = mb_buffer[i];
+  41:main.c        ****         }
+  42:main.c        ****         return TRUE;
+  70              		.loc 1 42 16 is_stmt 0 view .LVU15
+  71 004c 0100A0E3 		mov	r0, #1
+  43:main.c        ****       }
+  44:main.c        ****       break;
+  45:main.c        ****     case ROP_WRITE_8:
+  46:main.c        ****       if (address >= 2 && address <= 4) {
+  47:main.c        ****         mb_buffer[address - 2] = radio_data->byte;
+  48:main.c        ****         return TRUE;
+  49:main.c        ****       }
+  50:main.c        ****     case ROP_WRITE_16:
+  51:main.c        ****       if (address == 7) {
+  52:main.c        ****         datavar = (datavar * 3) + radio_data->word;
+  53:main.c        ****         return TRUE;
+  54:main.c        ****       }
+  55:main.c        ****       break;
+  56:main.c        ****     case ROP_WRITE_MB:
+  57:main.c        ****       if (address == 2) {
+  58:main.c        ****         last_mb_size = radio_data->multibyte.size;
+  59:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+  60:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+  61:main.c        ****         }
+  62:main.c        ****         return TRUE;
+  63:main.c        ****       }
+  64:main.c        ****       break;
+  65:main.c        ****   }
+  66:main.c        ****   return FALSE;
+  67:main.c        **** }
+  72              		.loc 1 67 1 view .LVU16
+  73 0050 1EFF2FE1 		bx	lr
+  74              	.LVL5:
+  75              	.L10:
+  24:main.c        ****       } else if (address == 21) {
+  76              		.loc 1 24 14 is_stmt 1 view .LVU17
+  24:main.c        ****       } else if (address == 21) {
+  77              		.loc 1 24 17 is_stmt 0 view .LVU18
+  78 0054 150051E3 		cmp	r1, #21
+  79 0058 3800001A 		bne	.L19
+  25:main.c        ****         radio_data->byte = 0x42;
+  80              		.loc 1 25 9 is_stmt 1 view .LVU19
+  25:main.c        ****         radio_data->byte = 0x42;
+  81              		.loc 1 25 16 is_stmt 0 view .LVU20
+  82 005c E4109FE5 		ldr	r1, .L25
+  83              	.LVL6:
+  25:main.c        ****         radio_data->byte = 0x42;
+  84              		.loc 1 25 16 view .LVU21
+  85 0060 0020D1E5 		ldrb	r2, [r1]	@ zero_extendqisi2
+  86              	.LVL7:
+  25:main.c        ****         radio_data->byte = 0x42;
+  87              		.loc 1 25 16 view .LVU22
+  88 0064 012082E2 		add	r2, r2, #1
+  89 0068 0020C1E5 		strb	r2, [r1]
+  26:main.c        ****         return TRUE;
+  90              		.loc 1 26 9 is_stmt 1 view .LVU23
+  26:main.c        ****         return TRUE;
+  91              		.loc 1 26 26 is_stmt 0 view .LVU24
+  92 006c 4220A0E3 		mov	r2, #66
+  93 0070 0020C3E5 		strb	r2, [r3]
+  27:main.c        ****       }
+  94              		.loc 1 27 9 is_stmt 1 view .LVU25
+  95 0074 F4FFFFEA 		b	.L22
+  96              	.LVL8:
+  97              	.L8:
+  31:main.c        ****         radio_data->dword = datavar;
+  98              		.loc 1 31 7 view .LVU26
+  31:main.c        ****         radio_data->dword = datavar;
+  99              		.loc 1 31 10 is_stmt 0 view .LVU27
+ 100 0078 020051E3 		cmp	r1, #2
+ 101 007c 2F00001A 		bne	.L19
+  32:main.c        ****         return TRUE;
+ 102              		.loc 1 32 9 is_stmt 1 view .LVU28
+  32:main.c        ****         return TRUE;
+ 103              		.loc 1 32 27 is_stmt 0 view .LVU29
+ 104 0080 C0209FE5 		ldr	r2, .L25
+ 105              	.LVL9:
+  32:main.c        ****         return TRUE;
+ 106              		.loc 1 32 27 view .LVU30
+ 107 0084 042092E5 		ldr	r2, [r2, #4]
+ 108 0088 002083E5 		str	r2, [r3]
+  33:main.c        ****       }
+ 109              		.loc 1 33 9 is_stmt 1 view .LVU31
+ 110 008c EEFFFFEA 		b	.L22
+ 111              	.LVL10:
+ 112              	.L7:
+  37:main.c        ****         radio_data->multibyte.size = last_mb_size;
+ 113              		.loc 1 37 7 view .LVU32
+  37:main.c        ****         radio_data->multibyte.size = last_mb_size;
+ 114              		.loc 1 37 10 is_stmt 0 view .LVU33
+ 115 0090 020051E3 		cmp	r1, #2
+ 116 0094 2900001A 		bne	.L19
+  38:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 117              		.loc 1 38 9 is_stmt 1 view .LVU34
+  38:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 118              		.loc 1 38 36 is_stmt 0 view .LVU35
+ 119 0098 0300A0E1 		mov	r0, r3
+ 120              	.LVL11:
+  14:main.c        ****   uint8_t i;
+ 121              		.loc 1 14 1 view .LVU36
+ 122 009c 10402DE9 		push	{r4, lr}
+ 123              	.LCFI0:
+ 124              		.cfi_def_cfa_offset 8
+ 125              		.cfi_offset 4, -8
+ 126              		.cfi_offset 14, -4
+  38:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 127              		.loc 1 38 36 view .LVU37
+ 128 00a0 A0109FE5 		ldr	r1, .L25
+ 129              	.LVL12:
+  38:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 130              		.loc 1 38 36 view .LVU38
+ 131 00a4 0820D1E5 		ldrb	r2, [r1, #8]	@ zero_extendqisi2
+ 132              	.LVL13:
+  40:main.c        ****         }
+ 133              		.loc 1 40 41 view .LVU39
+ 134 00a8 091081E2 		add	r1, r1, #9
+  38:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 135              		.loc 1 38 36 view .LVU40
+ 136 00ac 0120C0E4 		strb	r2, [r0], #1
+  39:main.c        ****           radio_data->multibyte.data[i] = mb_buffer[i];
+ 137              		.loc 1 39 9 is_stmt 1 view .LVU41
+ 138              	.LVL14:
+  40:main.c        ****         }
+ 139              		.loc 1 40 41 is_stmt 0 view .LVU42
+ 140 00b0 FEFFFFEB 		bl	memcpy
+ 141              	.LVL15:
+  42:main.c        ****       }
+ 142              		.loc 1 42 16 view .LVU43
+ 143 00b4 0100A0E3 		mov	r0, #1
+ 144              		.loc 1 67 1 view .LVU44
+ 145 00b8 1040BDE8 		pop	{r4, lr}
+ 146              	.LCFI1:
+ 147              		.cfi_restore 14
+ 148              		.cfi_restore 4
+ 149              		.cfi_def_cfa_offset 0
+ 150 00bc 1EFF2FE1 		bx	lr
+ 151              	.LVL16:
+ 152              	.L6:
+  46:main.c        ****         mb_buffer[address - 2] = radio_data->byte;
+ 153              		.loc 1 46 7 is_stmt 1 view .LVU45
+  46:main.c        ****         mb_buffer[address - 2] = radio_data->byte;
+ 154              		.loc 1 46 10 is_stmt 0 view .LVU46
+ 155 00c0 022041E2 		sub	r2, r1, #2
+ 156              	.LVL17:
+  46:main.c        ****         mb_buffer[address - 2] = radio_data->byte;
+ 157              		.loc 1 46 10 view .LVU47
+ 158 00c4 020052E3 		cmp	r2, #2
+ 159 00c8 0400008A 		bhi	.L5
+  47:main.c        ****         return TRUE;
+ 160              		.loc 1 47 9 is_stmt 1 view .LVU48
+  47:main.c        ****         return TRUE;
+ 161              		.loc 1 47 44 is_stmt 0 view .LVU49
+ 162 00cc 0020D3E5 		ldrb	r2, [r3]	@ zero_extendqisi2
+  47:main.c        ****         return TRUE;
+ 163              		.loc 1 47 32 view .LVU50
+ 164 00d0 70309FE5 		ldr	r3, .L25
+ 165              	.LVL18:
+  47:main.c        ****         return TRUE;
+ 166              		.loc 1 47 32 view .LVU51
+ 167 00d4 011083E0 		add	r1, r3, r1
+ 168              	.LVL19:
+  47:main.c        ****         return TRUE;
+ 169              		.loc 1 47 32 view .LVU52
+ 170 00d8 0720C1E5 		strb	r2, [r1, #7]
+  48:main.c        ****       }
+ 171              		.loc 1 48 9 is_stmt 1 view .LVU53
+ 172 00dc DAFFFFEA 		b	.L22
+ 173              	.LVL20:
+ 174              	.L5:
+  51:main.c        ****         datavar = (datavar * 3) + radio_data->word;
+ 175              		.loc 1 51 7 view .LVU54
+  51:main.c        ****         datavar = (datavar * 3) + radio_data->word;
+ 176              		.loc 1 51 10 is_stmt 0 view .LVU55
+ 177 00e0 070051E3 		cmp	r1, #7
+ 178 00e4 1500001A 		bne	.L19
+  52:main.c        ****         return TRUE;
+ 179              		.loc 1 52 9 is_stmt 1 view .LVU56
+  52:main.c        ****         return TRUE;
+ 180              		.loc 1 52 17 is_stmt 0 view .LVU57
+ 181 00e8 58109FE5 		ldr	r1, .L25
+ 182              	.LVL21:
+  52:main.c        ****         return TRUE;
+ 183              		.loc 1 52 28 view .LVU58
+ 184 00ec 042091E5 		ldr	r2, [r1, #4]
+  52:main.c        ****         return TRUE;
+ 185              		.loc 1 52 45 view .LVU59
+ 186 00f0 B030D3E1 		ldrh	r3, [r3]
+ 187              	.LVL22:
+  52:main.c        ****         return TRUE;
+ 188              		.loc 1 52 28 view .LVU60
+ 189 00f4 822082E0 		add	r2, r2, r2, lsl #1
+  52:main.c        ****         return TRUE;
+ 190              		.loc 1 52 33 view .LVU61
+ 191 00f8 032082E0 		add	r2, r2, r3
+  52:main.c        ****         return TRUE;
+ 192              		.loc 1 52 17 view .LVU62
+ 193 00fc 042081E5 		str	r2, [r1, #4]
+  53:main.c        ****       }
+ 194              		.loc 1 53 9 is_stmt 1 view .LVU63
+ 195 0100 D1FFFFEA 		b	.L22
+ 196              	.LVL23:
+ 197              	.L3:
+  57:main.c        ****         last_mb_size = radio_data->multibyte.size;
+ 198              		.loc 1 57 7 view .LVU64
+  57:main.c        ****         last_mb_size = radio_data->multibyte.size;
+ 199              		.loc 1 57 10 is_stmt 0 view .LVU65
+ 200 0104 020051E3 		cmp	r1, #2
+ 201 0108 0C00001A 		bne	.L19
+  58:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 202              		.loc 1 58 9 is_stmt 1 view .LVU66
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 203              		.loc 1 59 9 is_stmt 0 view .LVU67
+ 204 010c 0010A0E3 		mov	r1, #0
+ 205              	.LVL24:
+  58:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 206              		.loc 1 58 22 view .LVU68
+ 207 0110 30209FE5 		ldr	r2, .L25
+ 208              	.LVL25:
+  58:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 209              		.loc 1 58 45 view .LVU69
+ 210 0114 01C0D3E4 		ldrb	ip, [r3], #1	@ zero_extendqisi2
+ 211              	.LVL26:
+  58:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 212              		.loc 1 58 45 view .LVU70
+ 213 0118 092082E2 		add	r2, r2, #9
+  58:main.c        ****         for (i = 0; i < last_mb_size; i++) {
+ 214              		.loc 1 58 22 view .LVU71
+ 215 011c 01C042E5 		strb	ip, [r2, #-1]
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 216              		.loc 1 59 9 is_stmt 1 view .LVU72
+ 217              	.LVL27:
+ 218              	.L11:
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 219              		.loc 1 59 21 discriminator 1 view .LVU73
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 220              		.loc 1 59 9 is_stmt 0 discriminator 1 view .LVU74
+ 221 0120 FF0001E2 		and	r0, r1, #255
+ 222 0124 00005CE1 		cmp	ip, r0
+ 223 0128 C7FFFF9A 		bls	.L22
+  60:main.c        ****         }
+ 224              		.loc 1 60 11 is_stmt 1 discriminator 3 view .LVU75
+  60:main.c        ****         }
+ 225              		.loc 1 60 52 is_stmt 0 discriminator 3 view .LVU76
+ 226 012c 0100D3E4 		ldrb	r0, [r3], #1	@ zero_extendqisi2
+  60:main.c        ****         }
+ 227              		.loc 1 60 56 discriminator 3 view .LVU77
+ 228 0130 040080E2 		add	r0, r0, #4
+  60:main.c        ****         }
+ 229              		.loc 1 60 24 discriminator 3 view .LVU78
+ 230 0134 0100C2E4 		strb	r0, [r2], #1
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 231              		.loc 1 59 39 is_stmt 1 discriminator 3 view .LVU79
+ 232              	.LVL28:
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 233              		.loc 1 59 39 is_stmt 0 discriminator 3 view .LVU80
+ 234 0138 011081E2 		add	r1, r1, #1
+ 235              	.LVL29:
+  59:main.c        ****           mb_buffer[i] = radio_data->multibyte.data[i] + 4;
+ 236              		.loc 1 59 39 discriminator 3 view .LVU81
+ 237 013c F7FFFFEA 		b	.L11
+ 238              	.LVL30:
+ 239              	.L19:
+  66:main.c        **** }
+ 240              		.loc 1 66 10 view .LVU82
+ 241 0140 0000A0E3 		mov	r0, #0
+ 242              	.LVL31:
+  66:main.c        **** }
+ 243              		.loc 1 66 10 view .LVU83
+ 244 0144 1EFF2FE1 		bx	lr
+ 245              	.L26:
+ 246              		.align	2
+ 247              	.L25:
+ 248 0148 00000000 		.word	.LANCHOR0
+ 249              		.cfi_endproc
+ 250              	.LFE0:
+ 252              		.section	.text.startup,"ax",%progbits
+ 253              		.align	2
+ 254              		.global	main
+ 255              		.syntax unified
+ 256              		.arm
+ 258              	main:
+ 259              	.LFB1:
+  68:main.c        **** 
+  69:main.c        **** int main(void)
+  70:main.c        **** {
+ 260              		.loc 1 70 1 is_stmt 1 view -0
+ 261              		.cfi_startproc
+ 262              		@ Function supports interworking.
+ 263              		@ Volatile: function does not return.
+ 264              		@ args = 0, pretend = 0, frame = 0
+ 265              		@ frame_needed = 0, uses_anonymous_args = 0
+  71:main.c        ****   hardware_init();
+ 266              		.loc 1 71 3 view .LVU85
+  70:main.c        ****   hardware_init();
+ 267              		.loc 1 70 1 is_stmt 0 view .LVU86
+ 268 0000 10402DE9 		push	{r4, lr}
+ 269              	.LCFI2:
+ 270              		.cfi_def_cfa_offset 8
+ 271              		.cfi_offset 4, -8
+ 272              		.cfi_offset 14, -4
+ 273              		.loc 1 71 3 view .LVU87
+ 274 0004 FEFFFFEB 		bl	hardware_init
+ 275              	.LVL32:
+  72:main.c        ****   
+  73:main.c        ****   // Registers the register handler callback function
+  74:main.c        ****   radio_add_reg_callback(register_handler);
+ 276              		.loc 1 74 3 is_stmt 1 view .LVU88
+ 277 0008 50009FE5 		ldr	r0, .L30
+ 278 000c FEFFFFEB 		bl	radio_add_reg_callback
+ 279              	.LVL33:
+  75:main.c        ****   
+  76:main.c        ****   // Changes the color of the led (first red then green) to show the boot
+  77:main.c        ****   // and then say that the module is ready.
+  78:main.c        ****   set_color_i(4, 0);
+ 280              		.loc 1 78 3 view .LVU89
+ 281 0010 0010A0E3 		mov	r1, #0
+ 282 0014 0400A0E3 		mov	r0, #4
+ 283 0018 FEFFFFEB 		bl	set_color_i
+ 284              	.LVL34:
+  79:main.c        ****   pause(ONE_SEC);
+ 285              		.loc 1 79 3 view .LVU90
+ 286 001c 40009FE5 		ldr	r0, .L30+4
+ 287 0020 FEFFFFEB 		bl	pause
+ 288              	.LVL35:
+  80:main.c        ****   set_color_i(2, 0);
+ 289              		.loc 1 80 3 view .LVU91
+ 290 0024 0010A0E3 		mov	r1, #0
+ 291 0028 0200A0E3 		mov	r0, #2
+ 292 002c FEFFFFEB 		bl	set_color_i
+ 293              	.LVL36:
+  81:main.c        ****   
+  82:main.c        ****   // Keeps the LED blinking in green to demonstrate that the main program is
+  83:main.c        ****   // still running and registers are processed in background.
+  84:main.c        ****   while (1) {
+  85:main.c        ****     set_color_i(2, 0);
+  86:main.c        ****     pause(ONE_SEC / 2);
+ 294              		.loc 1 86 5 is_stmt 0 view .LVU92
+ 295 0030 30409FE5 		ldr	r4, .L30+8
+ 296              	.L28:
+  84:main.c        ****     set_color_i(2, 0);
+ 297              		.loc 1 84 3 is_stmt 1 discriminator 1 view .LVU93
+  85:main.c        ****     pause(ONE_SEC / 2);
+ 298              		.loc 1 85 5 discriminator 1 view .LVU94
+ 299 0034 0010A0E3 		mov	r1, #0
+ 300 0038 0200A0E3 		mov	r0, #2
+ 301 003c FEFFFFEB 		bl	set_color_i
+ 302              	.LVL37:
+ 303              		.loc 1 86 5 discriminator 1 view .LVU95
+ 304 0040 0400A0E1 		mov	r0, r4
+ 305 0044 FEFFFFEB 		bl	pause
+ 306              	.LVL38:
+  87:main.c        ****     set_color_i(0, 0);
+ 307              		.loc 1 87 5 discriminator 1 view .LVU96
+ 308 0048 0010A0E3 		mov	r1, #0
+ 309 004c 0100A0E1 		mov	r0, r1
+ 310 0050 FEFFFFEB 		bl	set_color_i
+ 311              	.LVL39:
+  88:main.c        ****     pause(ONE_SEC / 2);
+ 312              		.loc 1 88 5 discriminator 1 view .LVU97
+ 313 0054 0400A0E1 		mov	r0, r4
+ 314 0058 FEFFFFEB 		bl	pause
+ 315              	.LVL40:
+  84:main.c        ****     set_color_i(2, 0);
+ 316              		.loc 1 84 9 discriminator 1 view .LVU98
+ 317 005c F4FFFFEA 		b	.L28
+ 318              	.L31:
+ 319              		.align	2
+ 320              	.L30:
+ 321 0060 00000000 		.word	register_handler
+ 322 0064 80969800 		.word	10000000
+ 323 0068 404B4C00 		.word	5000000
+ 324              		.cfi_endproc
+ 325              	.LFE1:
+ 327              		.bss
+ 328              		.align	2
+ 329              		.set	.LANCHOR0,. + 0
+ 332              	counter:
+ 333 0000 00       		.space	1
+ 334 0001 000000   		.space	3
+ 337              	datavar:
+ 338 0004 00000000 		.space	4
+ 341              	last_mb_size:
+ 342 0008 00       		.space	1
+ 345              	mb_buffer:
+ 346 0009 00000000 		.space	29
+ 346      00000000 
+ 346      00000000 
+ 346      00000000 
+ 346      00000000 
+ 347              		.text
+ 348              	.Letext0:
+ 349              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 350              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 351              		.file 4 "../firmware/radio.h"
+ 352              		.file 5 "../firmware/hardware.h"
+ 353              		.file 6 "../firmware/sysTime.h"
+ 354              		.file 7 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:17     .text:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:21     .text:00000000 register_handler
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:39     .text:00000010 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:50     .text:00000030 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:248    .text:00000148 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:253    .text.startup:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:258    .text.startup:00000000 main
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:321    .text.startup:00000060 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:328    .bss:00000000 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:332    .bss:00000000 counter
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:337    .bss:00000004 datavar
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:341    .bss:00000008 last_mb_size
+C:\Users\vlabbe\AppData\Local\Temp\ccrTFa0d.s:345    .bss:00000009 mb_buffer
+
+UNDEFINED SYMBOLS
+memcpy
+hardware_init
+radio_add_reg_callback
+set_color_i
+pause

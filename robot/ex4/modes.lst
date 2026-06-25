@@ -1,0 +1,331 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"modes.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.align	2
+  18              		.syntax unified
+  19              		.arm
+  21              	register_handler:
+  22              	.LVL0:
+  23              	.LFB0:
+  24              		.file 1 "modes.c"
+   1:modes.c       **** #include "config.h"
+   2:modes.c       **** #include "modes.h"
+   3:modes.c       **** #include "robot.h"
+   4:modes.c       **** #include "module.h"
+   5:modes.c       **** #include "registers.h"
+   6:modes.c       **** #include "hardware.h"
+   7:modes.c       **** #include "regdefs.h"
+   8:modes.c       **** 
+   9:modes.c       **** const uint8_t MOTOR_ADDR = 21;
+  10:modes.c       **** static int8_t sin_val;
+  11:modes.c       **** 
+  12:modes.c       **** /* Register callback function, handles some new registers on the radio.
+  13:modes.c       ****  * All these registers are of course completely useless, but it demonstrates how
+  14:modes.c       ****  * to implement a register callback function, and what it can do.
+  15:modes.c       ****  */
+  16:modes.c       **** static int8_t register_handler(uint8_t operation, uint8_t address, RadioData* radio_data)
+  17:modes.c       **** {
+  25              		.loc 1 17 1 view -0
+  26              		.cfi_startproc
+  27              		@ Function supports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  18:modes.c       ****   switch (operation)
+  31              		.loc 1 18 3 view .LVU1
+  19:modes.c       ****   {
+  20:modes.c       ****     case ROP_WRITE_8:
+  21:modes.c       ****       if (address == 2) {
+  32              		.loc 1 21 7 view .LVU2
+  33              		.loc 1 21 10 is_stmt 0 view .LVU3
+  34 0000 020051E3 		cmp	r1, #2
+  35 0004 04005003 		cmpeq	r0, #4
+  22:modes.c       ****         sin_val = radio_data->byte;
+  36              		.loc 1 22 17 view .LVU4
+  37 0008 0020D205 		ldrbeq	r2, [r2]	@ zero_extendqisi2
+  38              	.LVL1:
+  39              		.loc 1 22 17 view .LVU5
+  40 000c 10309F05 		ldreq	r3, .L4
+  21:modes.c       ****         sin_val = radio_data->byte;
+  41              		.loc 1 21 10 view .LVU6
+  42 0010 0100A003 		moveq	r0, #1
+  43              	.LVL2:
+  21:modes.c       ****         sin_val = radio_data->byte;
+  44              		.loc 1 21 10 view .LVU7
+  45 0014 0000A013 		movne	r0, #0
+  46              		.loc 1 22 9 is_stmt 1 view .LVU8
+  47              		.loc 1 22 17 is_stmt 0 view .LVU9
+  48 0018 0020C305 		strbeq	r2, [r3]
+  23:modes.c       ****         return TRUE;
+  49              		.loc 1 23 9 is_stmt 1 view .LVU10
+  50              		.loc 1 23 16 is_stmt 0 view .LVU11
+  51 001c 0100A003 		moveq	r0, #1
+  24:modes.c       ****       }
+  25:modes.c       ****   }
+  26:modes.c       ****   return FALSE;
+  27:modes.c       **** }
+  52              		.loc 1 27 1 view .LVU12
+  53 0020 1EFF2FE1 		bx	lr
+  54              	.L5:
+  55              		.align	2
+  56              	.L4:
+  57 0024 00000000 		.word	.LANCHOR0
+  58              		.cfi_endproc
+  59              	.LFE0:
+  61              		.global	__aeabi_i2f
+  62              		.global	__aeabi_fmul
+  63              		.global	__aeabi_f2iz
+  64              		.align	2
+  65              		.global	motor_demo_mode
+  66              		.syntax unified
+  67              		.arm
+  69              	motor_demo_mode:
+  70              	.LFB1:
+  28:modes.c       **** 
+  29:modes.c       **** 
+  30:modes.c       **** void motor_demo_mode()
+  31:modes.c       **** {
+  71              		.loc 1 31 1 is_stmt 1 view -0
+  72              		.cfi_startproc
+  73              		@ Function supports interworking.
+  74              		@ args = 0, pretend = 0, frame = 0
+  75              		@ frame_needed = 0, uses_anonymous_args = 0
+  32:modes.c       ****   init_body_module(MOTOR_ADDR);
+  76              		.loc 1 32 3 view .LVU14
+  31:modes.c       ****   init_body_module(MOTOR_ADDR);
+  77              		.loc 1 31 1 is_stmt 0 view .LVU15
+  78 0028 70402DE9 		push	{r4, r5, r6, lr}
+  79              	.LCFI0:
+  80              		.cfi_def_cfa_offset 16
+  81              		.cfi_offset 4, -16
+  82              		.cfi_offset 5, -12
+  83              		.cfi_offset 6, -8
+  84              		.cfi_offset 14, -4
+  85              		.loc 1 32 3 view .LVU16
+  86 002c 1500A0E3 		mov	r0, #21
+  87 0030 FEFFFFEB 		bl	init_body_module
+  88              	.LVL3:
+  33:modes.c       ****   start_pid(MOTOR_ADDR);
+  89              		.loc 1 33 3 is_stmt 1 view .LVU17
+  90 0034 1500A0E3 		mov	r0, #21
+  91 0038 FEFFFFEB 		bl	start_pid
+  92              	.LVL4:
+  34:modes.c       ****   set_color(4);
+  93              		.loc 1 34 3 view .LVU18
+  94 003c 0400A0E3 		mov	r0, #4
+  95 0040 FEFFFFEB 		bl	set_color
+  96              	.LVL5:
+  35:modes.c       ****   while (reg8_table[REG8_MODE] == IMODE_MOTOR_DEMO) {
+  97              		.loc 1 35 3 view .LVU19
+  36:modes.c       ****     // Following target given by PC
+  37:modes.c       ****     bus_set(MOTOR_ADDR, MREG_SETPOINT, DEG_TO_OUTPUT_BODY(sin_val));
+  98              		.loc 1 37 40 is_stmt 0 view .LVU20
+  99 0044 FF65A0E3 		mov	r6, #1069547520
+  35:modes.c       ****   while (reg8_table[REG8_MODE] == IMODE_MOTOR_DEMO) {
+ 100              		.loc 1 35 20 view .LVU21
+ 101 0048 6C409FE5 		ldr	r4, .L10
+ 102              		.loc 1 37 40 view .LVU22
+ 103 004c 6C509FE5 		ldr	r5, .L10+4
+ 104              	.L7:
+  35:modes.c       ****   while (reg8_table[REG8_MODE] == IMODE_MOTOR_DEMO) {
+ 105              		.loc 1 35 9 is_stmt 1 view .LVU23
+  35:modes.c       ****   while (reg8_table[REG8_MODE] == IMODE_MOTOR_DEMO) {
+ 106              		.loc 1 35 20 is_stmt 0 view .LVU24
+ 107 0050 0030D4E5 		ldrb	r3, [r4]	@ zero_extendqisi2
+  35:modes.c       ****   while (reg8_table[REG8_MODE] == IMODE_MOTOR_DEMO) {
+ 108              		.loc 1 35 9 view .LVU25
+ 109 0054 010053E3 		cmp	r3, #1
+ 110 0058 0D00000A 		beq	.L8
+  38:modes.c       ****   }
+  39:modes.c       ****   bus_set(MOTOR_ADDR, MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 111              		.loc 1 39 3 is_stmt 1 view .LVU26
+ 112 005c 0020A0E3 		mov	r2, #0
+ 113 0060 2F10A0E3 		mov	r1, #47
+ 114 0064 1500A0E3 		mov	r0, #21
+ 115 0068 FEFFFFEB 		bl	bus_set
+ 116              	.LVL6:
+  40:modes.c       ****   pause(ONE_SEC);
+ 117              		.loc 1 40 3 view .LVU27
+ 118 006c 50009FE5 		ldr	r0, .L10+8
+ 119 0070 FEFFFFEB 		bl	pause
+ 120              	.LVL7:
+  41:modes.c       ****   bus_set(MOTOR_ADDR, MREG_MODE, MODE_IDLE);
+ 121              		.loc 1 41 3 view .LVU28
+ 122 0074 0020A0E3 		mov	r2, #0
+ 123 0078 2810A0E3 		mov	r1, #40
+ 124 007c 1500A0E3 		mov	r0, #21
+ 125 0080 FEFFFFEB 		bl	bus_set
+ 126              	.LVL8:
+  42:modes.c       ****   set_color(2);
+ 127              		.loc 1 42 3 view .LVU29
+ 128 0084 0200A0E3 		mov	r0, #2
+ 129 0088 FEFFFFEB 		bl	set_color
+ 130              	.LVL9:
+  43:modes.c       **** }
+ 131              		.loc 1 43 1 is_stmt 0 view .LVU30
+ 132 008c 7040BDE8 		pop	{r4, r5, r6, lr}
+ 133              	.LCFI1:
+ 134              		.cfi_remember_state
+ 135              		.cfi_restore 14
+ 136              		.cfi_restore 6
+ 137              		.cfi_restore 5
+ 138              		.cfi_restore 4
+ 139              		.cfi_def_cfa_offset 0
+ 140 0090 1EFF2FE1 		bx	lr
+ 141              	.L8:
+ 142              	.LCFI2:
+ 143              		.cfi_restore_state
+  37:modes.c       ****   }
+ 144              		.loc 1 37 5 is_stmt 1 view .LVU31
+  37:modes.c       ****   }
+ 145              		.loc 1 37 40 is_stmt 0 view .LVU32
+ 146 0094 D000D5E1 		ldrsb	r0, [r5]
+ 147 0098 FEFFFFEB 		bl	__aeabi_i2f
+ 148              	.LVL10:
+ 149 009c 0610A0E1 		mov	r1, r6
+ 150 00a0 FEFFFFEB 		bl	__aeabi_fmul
+ 151              	.LVL11:
+ 152 00a4 FEFFFFEB 		bl	__aeabi_f2iz
+ 153              	.LVL12:
+  37:modes.c       ****   }
+ 154              		.loc 1 37 5 view .LVU33
+ 155 00a8 2F10A0E3 		mov	r1, #47
+ 156 00ac FF2000E2 		and	r2, r0, #255
+ 157 00b0 1500A0E3 		mov	r0, #21
+ 158 00b4 FEFFFFEB 		bl	bus_set
+ 159              	.LVL13:
+ 160 00b8 E4FFFFEA 		b	.L7
+ 161              	.L11:
+ 162              		.align	2
+ 163              	.L10:
+ 164 00bc 00000000 		.word	reg8_table
+ 165 00c0 00000000 		.word	.LANCHOR0
+ 166 00c4 80969800 		.word	10000000
+ 167              		.cfi_endproc
+ 168              	.LFE1:
+ 170              		.align	2
+ 171              		.global	main_mode_loop
+ 172              		.syntax unified
+ 173              		.arm
+ 175              	main_mode_loop:
+ 176              	.LFB2:
+  44:modes.c       **** 
+  45:modes.c       **** void main_mode_loop()
+  46:modes.c       **** {
+ 177              		.loc 1 46 1 is_stmt 1 view -0
+ 178              		.cfi_startproc
+ 179              		@ Function supports interworking.
+ 180              		@ Volatile: function does not return.
+ 181              		@ args = 0, pretend = 0, frame = 0
+ 182              		@ frame_needed = 0, uses_anonymous_args = 0
+  47:modes.c       ****   // Registers the register handler callback function
+  48:modes.c       ****   radio_add_reg_callback(register_handler);
+ 183              		.loc 1 48 3 view .LVU35
+  46:modes.c       ****   // Registers the register handler callback function
+ 184              		.loc 1 46 1 is_stmt 0 view .LVU36
+ 185 00c8 10402DE9 		push	{r4, lr}
+ 186              	.LCFI3:
+ 187              		.cfi_def_cfa_offset 8
+ 188              		.cfi_offset 4, -8
+ 189              		.cfi_offset 14, -4
+ 190              		.loc 1 48 3 view .LVU37
+ 191 00cc 28009FE5 		ldr	r0, .L21
+ 192 00d0 FEFFFFEB 		bl	radio_add_reg_callback
+ 193              	.LVL14:
+  49:modes.c       ****   
+  50:modes.c       ****   reg8_table[REG8_MODE] = IMODE_IDLE;
+ 194              		.loc 1 50 3 is_stmt 1 view .LVU38
+ 195              		.loc 1 50 25 is_stmt 0 view .LVU39
+ 196 00d4 0050A0E3 		mov	r5, #0
+ 197 00d8 20409FE5 		ldr	r4, .L21+4
+ 198              	.L20:
+ 199 00dc 0050C4E5 		strb	r5, [r4]
+ 200              	.L14:
+  51:modes.c       **** 
+  52:modes.c       ****   while (1)
+ 201              		.loc 1 52 3 is_stmt 1 view .LVU40
+  53:modes.c       ****   {
+  54:modes.c       ****     switch(reg8_table[REG8_MODE])
+ 202              		.loc 1 54 5 view .LVU41
+ 203              		.loc 1 54 22 is_stmt 0 view .LVU42
+ 204 00e0 0030D4E5 		ldrb	r3, [r4]	@ zero_extendqisi2
+ 205              		.loc 1 54 5 view .LVU43
+ 206 00e4 FF3013E2 		ands	r3, r3, #255
+ 207 00e8 FCFFFF0A 		beq	.L14
+ 208 00ec 010053E3 		cmp	r3, #1
+ 209 00f0 F9FFFF1A 		bne	.L20
+  55:modes.c       ****     {
+  56:modes.c       ****       case IMODE_IDLE:
+  57:modes.c       ****         break;
+  58:modes.c       ****       case IMODE_MOTOR_DEMO:
+  59:modes.c       ****         motor_demo_mode();
+ 210              		.loc 1 59 9 is_stmt 1 view .LVU44
+ 211 00f4 FEFFFFEB 		bl	motor_demo_mode
+ 212              	.LVL15:
+  60:modes.c       ****         break;
+ 213              		.loc 1 60 9 view .LVU45
+ 214 00f8 F8FFFFEA 		b	.L14
+ 215              	.L22:
+ 216              		.align	2
+ 217              	.L21:
+ 218 00fc 00000000 		.word	register_handler
+ 219 0100 00000000 		.word	reg8_table
+ 220              		.cfi_endproc
+ 221              	.LFE2:
+ 223              		.global	MOTOR_ADDR
+ 224              		.section	.rodata
+ 227              	MOTOR_ADDR:
+ 228 0000 15       		.byte	21
+ 229              		.bss
+ 230              		.set	.LANCHOR0,. + 0
+ 233              	sin_val:
+ 234 0000 00       		.space	1
+ 235              		.text
+ 236              	.Letext0:
+ 237              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 238              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 239              		.file 4 "../firmware/radio.h"
+ 240              		.file 5 "../firmware/registers.h"
+ 241              		.file 6 "../firmware/robot.h"
+ 242              		.file 7 "../firmware/hardware.h"
+ 243              		.file 8 "../firmware/sysTime.h"
+ 244              		.file 9 "../../common/regdefs.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 modes.c
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:17     .text:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:21     .text:00000000 register_handler
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:57     .text:00000024 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:64     .text:00000028 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:69     .text:00000028 motor_demo_mode
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:164    .text:000000bc $d
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:170    .text:000000c8 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:175    .text:000000c8 main_mode_loop
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:218    .text:000000fc $d
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:227    .rodata:00000000 MOTOR_ADDR
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:233    .bss:00000000 sin_val
+C:\Users\vlabbe\AppData\Local\Temp\ccoijID9.s:234    .bss:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_i2f
+__aeabi_fmul
+__aeabi_f2iz
+init_body_module
+start_pid
+set_color
+bus_set
+pause
+reg8_table
+radio_add_reg_callback

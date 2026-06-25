@@ -1,0 +1,145 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.startup,"ax",%progbits
+  18              		.align	2
+  19              		.global	main
+  20              		.syntax unified
+  21              		.arm
+  23              	main:
+  24              	.LFB0:
+  25              		.file 1 "main.c"
+   1:main.c        **** #include <stdint.h>
+   2:main.c        **** #include "hardware.h"
+   3:main.c        **** #include "registers.h"
+   4:main.c        **** 
+   5:main.c        **** int main(void)
+   6:main.c        **** {
+  26              		.loc 1 6 1 view -0
+  27              		.cfi_startproc
+  28              		@ Function supports interworking.
+  29              		@ Volatile: function does not return.
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+   7:main.c        ****   // int8_t i;
+   8:main.c        **** 
+   9:main.c        ****   hardware_init();
+  32              		.loc 1 9 3 view .LVU1
+   6:main.c        ****   // int8_t i;
+  33              		.loc 1 6 1 is_stmt 0 view .LVU2
+  34 0000 10402DE9 		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+  39              		.loc 1 9 3 view .LVU3
+  40 0004 FEFFFFEB 		bl	hardware_init
+  41              	.LVL0:
+  10:main.c        ****   reg32_table[REG32_LED] = LED_MANUAL;  // manual LED control
+  42              		.loc 1 10 3 is_stmt 1 view .LVU4
+  43              		.loc 1 10 26 is_stmt 0 view .LVU5
+  44 0008 FF24A0E3 		mov	r2, #-16777216
+  45 000c 38309FE5 		ldr	r3, .L4
+  11:main.c        **** 
+  12:main.c        ****   while (1) {
+  13:main.c        ****   //   for (i = 0; i < 127; i++) {
+  14:main.c        ****   //     set_rgb(i, 0, 0);
+  15:main.c        ****   //     pause(TEN_MS);
+  16:main.c        ****   //   }
+  17:main.c        ****   //   for (i = 0; i < 127; i++) {
+  18:main.c        ****   //     set_rgb(127, i, 0);
+  19:main.c        ****   //     pause(TEN_MS);
+  20:main.c        ****   //   }
+  21:main.c        ****   //   for (i = 0; i < 127; i++) {
+  22:main.c        ****   //     set_rgb(127, 127, i);
+  23:main.c        ****   //     pause(TEN_MS);
+  24:main.c        ****   //   }
+  25:main.c        ****   //   for (i = 127; i >= 0; i--) {
+  26:main.c        ****   //     set_rgb(i, 127, 127);
+  27:main.c        ****   //     pause(TEN_MS);
+  28:main.c        ****   //   }
+  29:main.c        ****   //   for (i = 127; i >= 0; i--) {
+  30:main.c        ****   //     set_rgb(0, i, 127);
+  31:main.c        ****   //     pause(TEN_MS);
+  32:main.c        ****   //   }
+  33:main.c        ****   //   for (i = 127; i >= 0; i--) {
+  34:main.c        ****   //     set_rgb(0, 0, i);
+  35:main.c        ****   //     pause(TEN_MS);
+  36:main.c        ****   //   }
+  37:main.c        ****   
+  38:main.c        **** 
+  39:main.c        ****   set_rgb(0,127,0);
+  40:main.c        ****   pause(50*TEN_MS);
+  46              		.loc 1 40 3 view .LVU6
+  47 0010 38409FE5 		ldr	r4, .L4+4
+  10:main.c        ****   reg32_table[REG32_LED] = LED_MANUAL;  // manual LED control
+  48              		.loc 1 10 26 view .LVU7
+  49 0014 002083E5 		str	r2, [r3]
+  50              	.L2:
+  12:main.c        ****   //   for (i = 0; i < 127; i++) {
+  51              		.loc 1 12 3 is_stmt 1 discriminator 1 view .LVU8
+  39:main.c        ****   pause(50*TEN_MS);
+  52              		.loc 1 39 3 discriminator 1 view .LVU9
+  53 0018 0020A0E3 		mov	r2, #0
+  54 001c 7F10A0E3 		mov	r1, #127
+  55 0020 0200A0E1 		mov	r0, r2
+  56 0024 FEFFFFEB 		bl	set_rgb
+  57              	.LVL1:
+  58              		.loc 1 40 3 discriminator 1 view .LVU10
+  59 0028 0400A0E1 		mov	r0, r4
+  60 002c FEFFFFEB 		bl	pause
+  61              	.LVL2:
+  41:main.c        ****   set_rgb(0,0,0);
+  62              		.loc 1 41 3 discriminator 1 view .LVU11
+  63 0030 0020A0E3 		mov	r2, #0
+  64 0034 0200A0E1 		mov	r0, r2
+  65 0038 0210A0E1 		mov	r1, r2
+  66 003c FEFFFFEB 		bl	set_rgb
+  67              	.LVL3:
+  42:main.c        ****   pause(50*TEN_MS);
+  68              		.loc 1 42 3 discriminator 1 view .LVU12
+  69 0040 0400A0E1 		mov	r0, r4
+  70 0044 FEFFFFEB 		bl	pause
+  71              	.LVL4:
+  12:main.c        ****   //   for (i = 0; i < 127; i++) {
+  72              		.loc 1 12 9 discriminator 1 view .LVU13
+  73 0048 F2FFFFEA 		b	.L2
+  74              	.L5:
+  75              		.align	2
+  76              	.L4:
+  77 004c 00000000 		.word	reg32_table
+  78 0050 404B4C00 		.word	5000000
+  79              		.cfi_endproc
+  80              	.LFE0:
+  82              		.text
+  83              	.Letext0:
+  84              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+  85              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+  86              		.file 4 "../firmware/hardware.h"
+  87              		.file 5 "../firmware/sysTime.h"
+  88              		.file 6 "../../common/regdefs.h"
+  89              		.file 7 "../firmware/registers.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\vlabbe\AppData\Local\Temp\cc4SYalP.s:18     .text.startup:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\cc4SYalP.s:23     .text.startup:00000000 main
+C:\Users\vlabbe\AppData\Local\Temp\cc4SYalP.s:77     .text.startup:0000004c $d
+
+UNDEFINED SYMBOLS
+hardware_init
+set_rgb
+pause
+reg32_table

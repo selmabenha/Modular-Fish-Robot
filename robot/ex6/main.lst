@@ -1,0 +1,288 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.align	2
+  18              		.syntax unified
+  19              		.arm
+  21              	register_handler:
+  22              	.LVL0:
+  23              	.LFB0:
+  24              		.file 1 "main.c"
+   1:main.c        **** #include "hardware.h"
+   2:main.c        **** #include "module.h"
+   3:main.c        **** #include "can.h"
+   4:main.c        **** #include "robot.h"
+   5:main.c        **** #include "registers.h"
+   6:main.c        **** 
+   7:main.c        **** const uint8_t MOTOR_ADDR[5] = {5,26,24,22,25};
+   8:main.c        **** static volatile uint8_t coordinates[2] = {0,0};
+   9:main.c        **** 
+  10:main.c        **** /* Register callback function, handles some new registers on the radio.
+  11:main.c        ****  * MB register 2 handle x and y coordinates of the robot.
+  12:main.c        ****  */
+  13:main.c        **** static int8_t register_handler(uint8_t operation, uint8_t address, RadioData* radio_data)
+  14:main.c        **** {
+  25              		.loc 1 14 1 view -0
+  26              		.cfi_startproc
+  27              		@ Function supports interworking.
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  15:main.c        ****   switch (operation)
+  31              		.loc 1 15 3 view .LVU1
+  16:main.c        ****   {
+  17:main.c        ****     case ROP_WRITE_MB:
+  18:main.c        ****       if (address == 2) {
+  32              		.loc 1 18 7 view .LVU2
+  33              		.loc 1 18 10 is_stmt 0 view .LVU3
+  34 0000 020051E3 		cmp	r1, #2
+  35 0004 07005003 		cmpeq	r0, #7
+  36 0008 0100A003 		moveq	r0, #1
+  37              	.LVL1:
+  38              		.loc 1 18 10 view .LVU4
+  39 000c 0000A013 		movne	r0, #0
+  40 0010 1EFF2F11 		bxne	lr
+  19:main.c        ****         if (2 == radio_data->multibyte.size){
+  41              		.loc 1 19 9 is_stmt 1 view .LVU5
+  42              		.loc 1 19 12 is_stmt 0 view .LVU6
+  43 0014 0030D2E5 		ldrb	r3, [r2]	@ zero_extendqisi2
+  44 0018 020053E3 		cmp	r3, #2
+  45 001c 0110D205 		ldrbeq	r1, [r2, #1]	@ zero_extendqisi2
+  46              	.LVL2:
+  47              	.LBB4:
+  48              	.LBB5:
+  20:main.c        ****           coordinates[0] = radio_data->multibyte.data[0];
+  49              		.loc 1 20 26 view .LVU7
+  50 0020 14309F05 		ldreq	r3, .L5
+  51 0024 0220D205 		ldrbeq	r2, [r2, #2]	@ zero_extendqisi2
+  52              	.LVL3:
+  53              		.loc 1 20 26 view .LVU8
+  54              	.LBE5:
+  55              	.LBI4:
+  13:main.c        **** {
+  56              		.loc 1 13 15 is_stmt 1 view .LVU9
+  57              	.LBB6:
+  58              		.loc 1 20 11 view .LVU10
+  21:main.c        ****           coordinates[1] = radio_data->multibyte.data[1];
+  59              		.loc 1 21 26 is_stmt 0 view .LVU11
+  60 0028 0100A003 		moveq	r0, #1
+  20:main.c        ****           coordinates[0] = radio_data->multibyte.data[0];
+  61              		.loc 1 20 26 view .LVU12
+  62 002c 0010C305 		strbeq	r1, [r3]
+  63              		.loc 1 21 11 is_stmt 1 view .LVU13
+  64              	.LBE6:
+  65              	.LBE4:
+  22:main.c        ****         }else{
+  23:main.c        ****           return FALSE;
+  24:main.c        ****         }
+  25:main.c        ****         
+  26:main.c        ****         return TRUE;
+  27:main.c        ****       }
+  28:main.c        ****       break;
+  29:main.c        ****   }
+  30:main.c        ****   return FALSE;
+  66              		.loc 1 30 10 is_stmt 0 view .LVU14
+  67 0030 0000A013 		movne	r0, #0
+  68              	.LBB8:
+  69              	.LBB7:
+  21:main.c        ****           coordinates[1] = radio_data->multibyte.data[1];
+  70              		.loc 1 21 26 view .LVU15
+  71 0034 0120C305 		strbeq	r2, [r3, #1]
+  26:main.c        ****       }
+  72              		.loc 1 26 9 is_stmt 1 view .LVU16
+  73              	.LVL4:
+  26:main.c        ****       }
+  74              		.loc 1 26 9 is_stmt 0 view .LVU17
+  75              	.LBE7:
+  76              	.LBE8:
+  31:main.c        **** }
+  77              		.loc 1 31 1 view .LVU18
+  78 0038 1EFF2FE1 		bx	lr
+  79              	.L6:
+  80              		.align	2
+  81              	.L5:
+  82 003c 00000000 		.word	.LANCHOR0
+  83              		.cfi_endproc
+  84              	.LFE0:
+  86              		.section	.text.startup,"ax",%progbits
+  87              		.align	2
+  88              		.global	main
+  89              		.syntax unified
+  90              		.arm
+  92              	main:
+  93              	.LFB1:
+  32:main.c        **** 
+  33:main.c        **** int main(void)
+  34:main.c        **** {
+  94              		.loc 1 34 1 is_stmt 1 view -0
+  95              		.cfi_startproc
+  96              		@ Function supports interworking.
+  97              		@ args = 0, pretend = 0, frame = 0
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  35:main.c        ****   hardware_init();
+  99              		.loc 1 35 3 view .LVU20
+  34:main.c        ****   hardware_init();
+ 100              		.loc 1 34 1 is_stmt 0 view .LVU21
+ 101 0000 70402DE9 		push	{r4, r5, r6, lr}
+ 102              	.LCFI0:
+ 103              		.cfi_def_cfa_offset 16
+ 104              		.cfi_offset 4, -16
+ 105              		.cfi_offset 5, -12
+ 106              		.cfi_offset 6, -8
+ 107              		.cfi_offset 14, -4
+ 108              		.loc 1 35 3 view .LVU22
+ 109 0004 FEFFFFEB 		bl	hardware_init
+ 110              	.LVL5:
+  36:main.c        **** 
+  37:main.c        ****   uint8_t x_to_led;
+ 111              		.loc 1 37 3 is_stmt 1 view .LVU23
+  38:main.c        ****   uint8_t y_to_led;
+ 112              		.loc 1 38 3 view .LVU24
+  39:main.c        **** 
+  40:main.c        ****   // Registers the register handler callback function
+  41:main.c        ****   radio_add_reg_callback(register_handler);
+ 113              		.loc 1 41 3 view .LVU25
+ 114 0008 6C009FE5 		ldr	r0, .L12
+ 115 000c FEFFFFEB 		bl	radio_add_reg_callback
+ 116              	.LVL6:
+  42:main.c        **** 
+  43:main.c        ****   // Shuts down all the non head LEDs
+  44:main.c        ****   for (int i = 0 ; i < 5 ; i++){
+ 117              		.loc 1 44 3 view .LVU26
+ 118              	.LBB9:
+ 119              		.loc 1 44 8 view .LVU27
+ 120              		.loc 1 44 20 view .LVU28
+ 121              		.loc 1 44 12 is_stmt 0 view .LVU29
+ 122 0010 0040A0E3 		mov	r4, #0
+ 123 0014 64509FE5 		ldr	r5, .L12+4
+ 124              	.LVL7:
+ 125              	.L8:
+  45:main.c        ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 126              		.loc 1 45 5 is_stmt 1 discriminator 3 view .LVU30
+ 127 0018 0020A0E3 		mov	r2, #0
+ 128 001c 0110A0E3 		mov	r1, #1
+ 129 0020 0100D5E4 		ldrb	r0, [r5], #1	@ zero_extendqisi2
+  44:main.c        ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 130              		.loc 1 44 29 is_stmt 0 discriminator 3 view .LVU31
+ 131 0024 014084E2 		add	r4, r4, #1
+ 132              	.LVL8:
+ 133              		.loc 1 45 5 discriminator 3 view .LVU32
+ 134 0028 FEFFFFEB 		bl	set_reg_value_dw
+ 135              	.LVL9:
+  44:main.c        ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 136              		.loc 1 44 28 is_stmt 1 discriminator 3 view .LVU33
+  44:main.c        ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 137              		.loc 1 44 20 discriminator 3 view .LVU34
+  44:main.c        ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 138              		.loc 1 44 3 is_stmt 0 discriminator 3 view .LVU35
+ 139 002c 050054E3 		cmp	r4, #5
+ 140 0030 F8FFFF1A 		bne	.L8
+ 141              	.LBE9:
+  46:main.c        ****   } 
+  47:main.c        **** 
+  48:main.c        ****   // Blinks the led to show the boot
+  49:main.c        ****   set_rgb(0, 0, 0);
+ 142              		.loc 1 49 3 is_stmt 1 view .LVU36
+ 143 0034 0020A0E3 		mov	r2, #0
+ 144 0038 0210A0E1 		mov	r1, r2
+ 145 003c 0200A0E1 		mov	r0, r2
+ 146 0040 FEFFFFEB 		bl	set_rgb
+ 147              	.LVL10:
+  50:main.c        ****   pause(ONE_SEC);
+ 148              		.loc 1 50 3 view .LVU37
+ 149 0044 38009FE5 		ldr	r0, .L12+8
+ 150 0048 FEFFFFEB 		bl	pause
+ 151              	.LVL11:
+  51:main.c        ****   set_rgb(0, 0, 64);
+ 152              		.loc 1 51 3 view .LVU38
+ 153 004c 0010A0E3 		mov	r1, #0
+ 154 0050 4020A0E3 		mov	r2, #64
+ 155 0054 0100A0E1 		mov	r0, r1
+ 156 0058 FEFFFFEB 		bl	set_rgb
+ 157              	.LVL12:
+  52:main.c        ****   pause(ONE_SEC);
+ 158              		.loc 1 52 3 view .LVU39
+ 159 005c 20009FE5 		ldr	r0, .L12+8
+ 160 0060 FEFFFFEB 		bl	pause
+ 161              	.LVL13:
+  53:main.c        **** 
+  54:main.c        ****   // Initialises the body module with the specified address (but do not start the PD controller)
+  55:main.c        ****   // init_body_module(MOTOR_ADDR);
+  56:main.c        ****   
+  57:main.c        ****   // Then update LED's color according to x-y position
+  58:main.c        ****   while (1) {
+  59:main.c        ****     // green in (0,0) - cyan in (0,2) - yellow in (6,0) - white in (6,2)
+  60:main.c        ****     set_rgb(coordinates[0], 64, coordinates[1]);
+ 162              		.loc 1 60 5 is_stmt 0 view .LVU40
+ 163 0064 1C409FE5 		ldr	r4, .L12+12
+ 164              	.LVL14:
+ 165              	.L9:
+  58:main.c        ****     // green in (0,0) - cyan in (0,2) - yellow in (6,0) - white in (6,2)
+ 166              		.loc 1 58 3 is_stmt 1 discriminator 1 view .LVU41
+ 167              		.loc 1 60 5 discriminator 1 view .LVU42
+ 168 0068 0000D4E5 		ldrb	r0, [r4]	@ zero_extendqisi2
+ 169 006c 4010A0E3 		mov	r1, #64
+ 170 0070 0120D4E5 		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+ 171 0074 FEFFFFEB 		bl	set_rgb
+ 172              	.LVL15:
+  58:main.c        ****     // green in (0,0) - cyan in (0,2) - yellow in (6,0) - white in (6,2)
+ 173              		.loc 1 58 9 discriminator 1 view .LVU43
+ 174 0078 FAFFFFEA 		b	.L9
+ 175              	.L13:
+ 176              		.align	2
+ 177              	.L12:
+ 178 007c 00000000 		.word	register_handler
+ 179 0080 00000000 		.word	.LANCHOR1
+ 180 0084 80969800 		.word	10000000
+ 181 0088 00000000 		.word	.LANCHOR0
+ 182              		.cfi_endproc
+ 183              	.LFE1:
+ 185              		.global	MOTOR_ADDR
+ 186              		.section	.rodata
+ 187              		.set	.LANCHOR1,. + 0
+ 190              	MOTOR_ADDR:
+ 191 0000 051A1816 		.ascii	"\005\032\030\026\031"
+ 191      19
+ 192              		.bss
+ 193              		.set	.LANCHOR0,. + 0
+ 196              	coordinates:
+ 197 0000 0000     		.space	2
+ 198              		.text
+ 199              	.Letext0:
+ 200              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 201              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 202              		.file 4 "../firmware/radio.h"
+ 203              		.file 5 "../firmware/can.h"
+ 204              		.file 6 "../firmware/hardware.h"
+ 205              		.file 7 "../firmware/sysTime.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:17     .text:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:21     .text:00000000 register_handler
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:82     .text:0000003c $d
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:87     .text.startup:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:92     .text.startup:00000000 main
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:178    .text.startup:0000007c $d
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:190    .rodata:00000000 MOTOR_ADDR
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:196    .bss:00000000 coordinates
+C:\Users\vlabbe\AppData\Local\Temp\ccHWH1M5.s:197    .bss:00000000 $d
+
+UNDEFINED SYMBOLS
+hardware_init
+radio_add_reg_callback
+set_reg_value_dw
+set_rgb
+pause

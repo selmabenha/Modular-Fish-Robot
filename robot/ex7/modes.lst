@@ -1,0 +1,831 @@
+   1              		.cpu arm7tdmi
+   2              		.arch armv4t
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"modes.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	__aeabi_ui2f
+  18              		.global	__aeabi_fmul
+  19              		.global	__aeabi_f2d
+  20              		.global	__aeabi_ddiv
+  21              		.global	__aeabi_dadd
+  22              		.global	__aeabi_d2f
+  23              		.global	__aeabi_dmul
+  24              		.align	2
+  25              		.syntax unified
+  26              		.arm
+  28              	register_handler:
+  29              	.LVL0:
+  30              	.LFB0:
+  31              		.file 1 "modes.c"
+   1:modes.c       **** #include "config.h"
+   2:modes.c       **** #include "modes.h"
+   3:modes.c       **** #include "robot.h"
+   4:modes.c       **** #include "module.h"
+   5:modes.c       **** #include "registers.h"
+   6:modes.c       **** #include "hardware.h"
+   7:modes.c       **** 
+   8:modes.c       **** const uint8_t N_body = 5;
+   9:modes.c       **** const uint8_t MOTOR_ADDR[5] = {25,22,24,26,5};
+  10:modes.c       **** static float FREQ = 0.0;   // Hz
+  11:modes.c       **** static float AMP = 0.0;
+  12:modes.c       **** static float LAG = 0.0;  
+  13:modes.c       ****  
+  14:modes.c       **** 
+  15:modes.c       **** /* Register callback function, handles some new registers on the radio.
+  16:modes.c       ****  * All these registers are of course completely useless, but it demonstrates how
+  17:modes.c       ****  * to implement a register callback function, and what it can do.
+  18:modes.c       ****  */
+  19:modes.c       **** static int8_t register_handler(uint8_t operation, uint8_t address, RadioData* radio_data)
+  20:modes.c       **** {
+  32              		.loc 1 20 1 view -0
+  33              		.cfi_startproc
+  34              		@ Function supports interworking.
+  35              		@ args = 0, pretend = 0, frame = 0
+  36              		@ frame_needed = 0, uses_anonymous_args = 0
+  21:modes.c       ****   switch (operation)
+  37              		.loc 1 21 3 view .LVU1
+  38 0000 040050E3 		cmp	r0, #4
+  39 0004 3500001A 		bne	.L5
+  22:modes.c       ****   {
+  23:modes.c       ****     case ROP_WRITE_8:
+  24:modes.c       ****       if (address == 2) {
+  40              		.loc 1 24 7 view .LVU2
+  41              		.loc 1 24 10 is_stmt 0 view .LVU3
+  42 0008 020051E3 		cmp	r1, #2
+  20:modes.c       ****   switch (operation)
+  43              		.loc 1 20 1 view .LVU4
+  44 000c 10402DE9 		push	{r4, lr}
+  45              	.LCFI0:
+  46              		.cfi_def_cfa_offset 8
+  47              		.cfi_offset 4, -8
+  48              		.cfi_offset 14, -4
+  49              		.loc 1 24 10 view .LVU5
+  50 0010 1000001A 		bne	.L3
+  25:modes.c       ****         AMP = DECODE_PARAM_8(radio_data->byte,0,60);
+  51              		.loc 1 25 9 is_stmt 1 view .LVU6
+  52              		.loc 1 25 15 is_stmt 0 view .LVU7
+  53 0014 0000D2E5 		ldrb	r0, [r2]	@ zero_extendqisi2
+  54              	.LVL1:
+  55              		.loc 1 25 15 view .LVU8
+  56 0018 FEFFFFEB 		bl	__aeabi_ui2f
+  57              	.LVL2:
+  58              		.loc 1 25 15 view .LVU9
+  59 001c C4109FE5 		ldr	r1, .L12
+  60 0020 FEFFFFEB 		bl	__aeabi_fmul
+  61              	.LVL3:
+  62 0024 FEFFFFEB 		bl	__aeabi_f2d
+  63              	.LVL4:
+  64 0028 0020A0E3 		mov	r2, #0
+  65 002c B8309FE5 		ldr	r3, .L12+4
+  66 0030 FEFFFFEB 		bl	__aeabi_ddiv
+  67              	.LVL5:
+  68 0034 0030A0E3 		mov	r3, #0
+  69 0038 0020A0E3 		mov	r2, #0
+  70 003c FEFFFFEB 		bl	__aeabi_dadd
+  71              	.LVL6:
+  72 0040 FEFFFFEB 		bl	__aeabi_d2f
+  73              	.LVL7:
+  74 0044 A4309FE5 		ldr	r3, .L12+8
+  75 0048 000083E5 		str	r0, [r3]	@ float
+  26:modes.c       ****         return TRUE;
+  76              		.loc 1 26 9 is_stmt 1 view .LVU10
+  77              	.L11:
+  78              	.LBB4:
+  79              	.LBB5:
+  27:modes.c       ****       }
+  28:modes.c       ****       if (address == 3) {
+  29:modes.c       ****         FREQ = DECODE_PARAM_8(radio_data->byte,0,1.5);
+  30:modes.c       ****         return TRUE;
+  31:modes.c       ****       }
+  32:modes.c       ****       if (address == 4) {
+  33:modes.c       ****         LAG = DECODE_PARAM_8(radio_data->byte,0.5,1.5);
+  34:modes.c       ****         return TRUE;
+  80              		.loc 1 34 9 view .LVU11
+  33:modes.c       ****         return TRUE;
+  81              		.loc 1 33 13 is_stmt 0 view .LVU12
+  82 004c 0100A0E3 		mov	r0, #1
+  83              	.L2:
+  84              	.LBE5:
+  85              	.LBE4:
+  35:modes.c       ****       }
+  36:modes.c       ****   }
+  37:modes.c       ****   return FALSE;
+  38:modes.c       **** }
+  86              		.loc 1 38 1 view .LVU13
+  87 0050 1040BDE8 		pop	{r4, lr}
+  88              	.LCFI1:
+  89              		.cfi_remember_state
+  90              		.cfi_restore 14
+  91              		.cfi_restore 4
+  92              		.cfi_def_cfa_offset 0
+  93 0054 1EFF2FE1 		bx	lr
+  94              	.LVL8:
+  95              	.L3:
+  96              	.LCFI2:
+  97              		.cfi_restore_state
+  28:modes.c       ****         FREQ = DECODE_PARAM_8(radio_data->byte,0,1.5);
+  98              		.loc 1 28 7 is_stmt 1 view .LVU14
+  28:modes.c       ****         FREQ = DECODE_PARAM_8(radio_data->byte,0,1.5);
+  99              		.loc 1 28 10 is_stmt 0 view .LVU15
+ 100 0058 030051E3 		cmp	r1, #3
+ 101 005c 0F00001A 		bne	.L4
+  29:modes.c       ****         return TRUE;
+ 102              		.loc 1 29 9 is_stmt 1 view .LVU16
+  29:modes.c       ****         return TRUE;
+ 103              		.loc 1 29 16 is_stmt 0 view .LVU17
+ 104 0060 0000D2E5 		ldrb	r0, [r2]	@ zero_extendqisi2
+ 105              	.LVL9:
+  29:modes.c       ****         return TRUE;
+ 106              		.loc 1 29 16 view .LVU18
+ 107 0064 FEFFFFEB 		bl	__aeabi_ui2f
+ 108              	.LVL10:
+  29:modes.c       ****         return TRUE;
+ 109              		.loc 1 29 16 view .LVU19
+ 110 0068 FEFFFFEB 		bl	__aeabi_f2d
+ 111              	.LVL11:
+ 112 006c 0020A0E3 		mov	r2, #0
+ 113 0070 7C309FE5 		ldr	r3, .L12+12
+ 114 0074 FEFFFFEB 		bl	__aeabi_dmul
+ 115              	.LVL12:
+ 116 0078 0020A0E3 		mov	r2, #0
+ 117 007c 68309FE5 		ldr	r3, .L12+4
+ 118 0080 FEFFFFEB 		bl	__aeabi_ddiv
+ 119              	.LVL13:
+ 120 0084 0030A0E3 		mov	r3, #0
+ 121 0088 0020A0E3 		mov	r2, #0
+ 122 008c FEFFFFEB 		bl	__aeabi_dadd
+ 123              	.LVL14:
+ 124 0090 FEFFFFEB 		bl	__aeabi_d2f
+ 125              	.LVL15:
+ 126 0094 54309FE5 		ldr	r3, .L12+8
+ 127 0098 040083E5 		str	r0, [r3, #4]	@ float
+  30:modes.c       ****       }
+ 128              		.loc 1 30 9 is_stmt 1 view .LVU20
+ 129 009c EAFFFFEA 		b	.L11
+ 130              	.LVL16:
+ 131              	.L4:
+  32:modes.c       ****         LAG = DECODE_PARAM_8(radio_data->byte,0.5,1.5);
+ 132              		.loc 1 32 7 view .LVU21
+  32:modes.c       ****         LAG = DECODE_PARAM_8(radio_data->byte,0.5,1.5);
+ 133              		.loc 1 32 10 is_stmt 0 view .LVU22
+ 134 00a0 040051E3 		cmp	r1, #4
+  37:modes.c       **** }
+ 135              		.loc 1 37 10 view .LVU23
+ 136 00a4 0000A013 		movne	r0, #0
+ 137              	.LVL17:
+  32:modes.c       ****         LAG = DECODE_PARAM_8(radio_data->byte,0.5,1.5);
+ 138              		.loc 1 32 10 view .LVU24
+ 139 00a8 E8FFFF1A 		bne	.L2
+ 140              	.LBB7:
+ 141              	.LBI4:
+  19:modes.c       **** {
+ 142              		.loc 1 19 15 is_stmt 1 view .LVU25
+ 143              	.LVL18:
+ 144              	.LBB6:
+  33:modes.c       ****         return TRUE;
+ 145              		.loc 1 33 9 view .LVU26
+  33:modes.c       ****         return TRUE;
+ 146              		.loc 1 33 15 is_stmt 0 view .LVU27
+ 147 00ac 0000D2E5 		ldrb	r0, [r2]	@ zero_extendqisi2
+ 148 00b0 FEFFFFEB 		bl	__aeabi_ui2f
+ 149              	.LVL19:
+  33:modes.c       ****         return TRUE;
+ 150              		.loc 1 33 15 view .LVU28
+ 151 00b4 FEFFFFEB 		bl	__aeabi_f2d
+ 152              	.LVL20:
+ 153 00b8 0020A0E3 		mov	r2, #0
+ 154 00bc 28309FE5 		ldr	r3, .L12+4
+ 155 00c0 FEFFFFEB 		bl	__aeabi_ddiv
+ 156              	.LVL21:
+ 157 00c4 2C309FE5 		ldr	r3, .L12+16
+ 158 00c8 0020A0E3 		mov	r2, #0
+ 159 00cc FEFFFFEB 		bl	__aeabi_dadd
+ 160              	.LVL22:
+ 161 00d0 FEFFFFEB 		bl	__aeabi_d2f
+ 162              	.LVL23:
+ 163 00d4 14309FE5 		ldr	r3, .L12+8
+ 164 00d8 080083E5 		str	r0, [r3, #8]	@ float
+ 165 00dc DAFFFFEA 		b	.L11
+ 166              	.LVL24:
+ 167              	.L5:
+ 168              	.LCFI3:
+ 169              		.cfi_def_cfa_offset 0
+ 170              		.cfi_restore 4
+ 171              		.cfi_restore 14
+  33:modes.c       ****         return TRUE;
+ 172              		.loc 1 33 15 view .LVU29
+ 173              	.LBE6:
+ 174              	.LBE7:
+  37:modes.c       **** }
+ 175              		.loc 1 37 10 view .LVU30
+ 176 00e0 0000A0E3 		mov	r0, #0
+ 177              	.LVL25:
+ 178              		.loc 1 38 1 view .LVU31
+ 179 00e4 1EFF2FE1 		bx	lr
+ 180              	.L13:
+ 181              		.align	2
+ 182              	.L12:
+ 183 00e8 00007042 		.word	1114636288
+ 184 00ec 00E06F40 		.word	1081073664
+ 185 00f0 00000000 		.word	.LANCHOR0
+ 186 00f4 0000F83F 		.word	1073217536
+ 187 00f8 0000E03F 		.word	1071644672
+ 188              		.cfi_endproc
+ 189              	.LFE0:
+ 191              		.global	__aeabi_fdiv
+ 192              		.global	__aeabi_fadd
+ 193              		.global	__aeabi_i2f
+ 194              		.global	__aeabi_fsub
+ 195              		.global	__aeabi_f2iz
+ 196              		.global	__aeabi_i2d
+ 197              		.global	__aeabi_d2iz
+ 198              		.align	2
+ 199              		.global	sinus_mode
+ 200              		.syntax unified
+ 201              		.arm
+ 203              	sinus_mode:
+ 204              	.LFB1:
+  39:modes.c       **** 
+  40:modes.c       **** void sinus_mode()
+  41:modes.c       **** {
+ 205              		.loc 1 41 1 is_stmt 1 view -0
+ 206              		.cfi_startproc
+ 207              		@ Function supports interworking.
+ 208              		@ args = 0, pretend = 0, frame = 8
+ 209              		@ frame_needed = 0, uses_anonymous_args = 0
+  42:modes.c       ****   uint32_t dt, cycletimer;
+ 210              		.loc 1 42 3 view .LVU33
+  43:modes.c       ****   float my_time, delta_t, l;
+ 211              		.loc 1 43 3 view .LVU34
+  44:modes.c       ****   int8_t l_mot[N_body];
+ 212              		.loc 1 44 3 view .LVU35
+ 213              	.LVL26:
+  45:modes.c       **** 
+  46:modes.c       ****   cycletimer = getSysTICs();
+ 214              		.loc 1 46 3 view .LVU36
+  41:modes.c       ****   uint32_t dt, cycletimer;
+ 215              		.loc 1 41 1 is_stmt 0 view .LVU37
+ 216 00fc F74F2DE9 		push	{r0, r1, r2, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 217              	.LCFI4:
+ 218              		.cfi_def_cfa_offset 48
+ 219              		.cfi_offset 4, -36
+ 220              		.cfi_offset 5, -32
+ 221              		.cfi_offset 6, -28
+ 222              		.cfi_offset 7, -24
+ 223              		.cfi_offset 8, -20
+ 224              		.cfi_offset 9, -16
+ 225              		.cfi_offset 10, -12
+ 226              		.cfi_offset 11, -8
+ 227              		.cfi_offset 14, -4
+ 228              		.loc 1 46 16 view .LVU38
+ 229 0100 FEFFFFEB 		bl	getSysTICs
+ 230              	.LVL27:
+ 231 0104 A4719FE5 		ldr	r7, .L25
+ 232 0108 0040A0E1 		mov	r4, r0
+ 233              	.LVL28:
+  47:modes.c       ****   my_time = 0;
+ 234              		.loc 1 47 3 is_stmt 1 view .LVU39
+  48:modes.c       **** 
+  49:modes.c       ****   for(int i = 0; i<N_body; i++)
+ 235              		.loc 1 49 3 view .LVU40
+ 236              	.LBB8:
+ 237              		.loc 1 49 7 view .LVU41
+ 238              		.loc 1 49 18 view .LVU42
+ 239              	.LBE8:
+  46:modes.c       ****   my_time = 0;
+ 240              		.loc 1 46 16 is_stmt 0 view .LVU43
+ 241 010c 0780A0E1 		mov	r8, r7
+ 242              	.LBB9:
+ 243              		.loc 1 49 11 view .LVU44
+ 244 0110 0050A0E3 		mov	r5, #0
+ 245              	.LVL29:
+ 246              	.L15:
+  50:modes.c       ****   {
+  51:modes.c       ****     //set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+  52:modes.c       ****     init_body_module(MOTOR_ADDR[i]);
+ 247              		.loc 1 52 5 is_stmt 1 discriminator 3 view .LVU45
+ 248 0114 0160D8E4 		ldrb	r6, [r8], #1	@ zero_extendqisi2
+ 249 0118 0600A0E1 		mov	r0, r6
+ 250 011c FEFFFFEB 		bl	init_body_module
+ 251              	.LVL30:
+  53:modes.c       ****     start_pid(MOTOR_ADDR[i]);
+ 252              		.loc 1 53 5 discriminator 3 view .LVU46
+  49:modes.c       ****   {
+ 253              		.loc 1 49 29 is_stmt 0 discriminator 3 view .LVU47
+ 254 0120 015085E2 		add	r5, r5, #1
+ 255              	.LVL31:
+ 256              		.loc 1 53 5 discriminator 3 view .LVU48
+ 257 0124 0600A0E1 		mov	r0, r6
+ 258 0128 FEFFFFEB 		bl	start_pid
+ 259              	.LVL32:
+  49:modes.c       ****   {
+ 260              		.loc 1 49 28 is_stmt 1 discriminator 3 view .LVU49
+  49:modes.c       ****   {
+ 261              		.loc 1 49 18 discriminator 3 view .LVU50
+  49:modes.c       ****   {
+ 262              		.loc 1 49 3 is_stmt 0 discriminator 3 view .LVU51
+ 263 012c 050055E3 		cmp	r5, #5
+ 264 0130 F7FFFF1A 		bne	.L15
+ 265              	.LBE9:
+  47:modes.c       **** 
+ 266              		.loc 1 47 11 view .LVU52
+ 267 0134 0050A0E3 		mov	r5, #0
+ 268              	.LVL33:
+ 269              	.LBB10:
+  54:modes.c       ****   }
+  55:modes.c       ****   
+  56:modes.c       ****   do {
+  57:modes.c       ****     // Calculates the delta_t in seconds and adds it to the current time
+  58:modes.c       ****     dt = getElapsedSysTICs(cycletimer);
+  59:modes.c       ****     cycletimer = getSysTICs();
+  60:modes.c       ****     delta_t = (float) dt / sysTICSperSEC;
+  61:modes.c       ****     my_time += delta_t;
+  62:modes.c       **** 
+  63:modes.c       ****     for(int i = 0; i<N_body; i++) {
+  64:modes.c       ****       // Calculates the sine wave
+  65:modes.c       ****       l_mot[i] = (int8_t) ((i+1)*AMP/N_body) * sin(M_TWOPI *(FREQ * my_time - i*LAG/N_body) );
+ 270              		.loc 1 65 84 view .LVU53
+ 271 0138 74919FE5 		ldr	r9, .L25+4
+ 272              	.LVL34:
+ 273              	.L17:
+ 274              		.loc 1 65 84 view .LVU54
+ 275              	.LBE10:
+  56:modes.c       ****     // Calculates the delta_t in seconds and adds it to the current time
+ 276              		.loc 1 56 3 is_stmt 1 view .LVU55
+  58:modes.c       ****     cycletimer = getSysTICs();
+ 277              		.loc 1 58 5 view .LVU56
+  58:modes.c       ****     cycletimer = getSysTICs();
+ 278              		.loc 1 58 10 is_stmt 0 view .LVU57
+ 279 013c 0400A0E1 		mov	r0, r4
+ 280 0140 FEFFFFEB 		bl	getElapsedSysTICs
+ 281              	.LVL35:
+ 282 0144 0060A0E1 		mov	r6, r0
+ 283              	.LVL36:
+  59:modes.c       ****     delta_t = (float) dt / sysTICSperSEC;
+ 284              		.loc 1 59 5 is_stmt 1 view .LVU58
+  59:modes.c       ****     delta_t = (float) dt / sysTICSperSEC;
+ 285              		.loc 1 59 18 is_stmt 0 view .LVU59
+ 286 0148 FEFFFFEB 		bl	getSysTICs
+ 287              	.LVL37:
+  59:modes.c       ****     delta_t = (float) dt / sysTICSperSEC;
+ 288              		.loc 1 59 18 view .LVU60
+ 289 014c 0040A0E1 		mov	r4, r0
+ 290              	.LVL38:
+  60:modes.c       ****     my_time += delta_t;
+ 291              		.loc 1 60 5 is_stmt 1 view .LVU61
+  61:modes.c       **** 
+ 292              		.loc 1 61 5 view .LVU62
+  60:modes.c       ****     my_time += delta_t;
+ 293              		.loc 1 60 15 is_stmt 0 view .LVU63
+ 294 0150 0600A0E1 		mov	r0, r6
+ 295              	.LVL39:
+  60:modes.c       ****     my_time += delta_t;
+ 296              		.loc 1 60 15 view .LVU64
+ 297 0154 FEFFFFEB 		bl	__aeabi_ui2f
+ 298              	.LVL40:
+  60:modes.c       ****     my_time += delta_t;
+ 299              		.loc 1 60 13 view .LVU65
+ 300 0158 58119FE5 		ldr	r1, .L25+8
+ 301 015c FEFFFFEB 		bl	__aeabi_fdiv
+ 302              	.LVL41:
+ 303 0160 0010A0E1 		mov	r1, r0
+  61:modes.c       **** 
+ 304              		.loc 1 61 13 view .LVU66
+ 305 0164 0500A0E1 		mov	r0, r5
+ 306 0168 FEFFFFEB 		bl	__aeabi_fadd
+ 307              	.LVL42:
+ 308 016c 07A0A0E1 		mov	r10, r7
+ 309 0170 0050A0E1 		mov	r5, r0
+ 310              	.LVL43:
+  63:modes.c       ****       // Calculates the sine wave
+ 311              		.loc 1 63 5 is_stmt 1 view .LVU67
+ 312              	.LBB11:
+  63:modes.c       ****       // Calculates the sine wave
+ 313              		.loc 1 63 9 view .LVU68
+  63:modes.c       ****       // Calculates the sine wave
+ 314              		.loc 1 63 20 view .LVU69
+  63:modes.c       ****       // Calculates the sine wave
+ 315              		.loc 1 63 13 is_stmt 0 view .LVU70
+ 316 0174 0060A0E3 		mov	r6, #0
+ 317              	.LVL44:
+ 318              	.L16:
+ 319              		.loc 1 65 7 is_stmt 1 discriminator 3 view .LVU71
+ 320              		.loc 1 65 67 is_stmt 0 discriminator 3 view .LVU72
+ 321 0178 3C819FE5 		ldr	r8, .L25+12
+ 322 017c 0500A0E1 		mov	r0, r5
+ 323 0180 041098E5 		ldr	r1, [r8, #4]	@ float
+ 324 0184 00608DE5 		str	r6, [sp]
+ 325 0188 FEFFFFEB 		bl	__aeabi_fmul
+ 326              	.LVL45:
+ 327              		.loc 1 65 80 discriminator 3 view .LVU73
+ 328 018c 00309DE5 		ldr	r3, [sp]
+ 329              		.loc 1 65 67 discriminator 3 view .LVU74
+ 330 0190 00B0A0E1 		mov	fp, r0
+ 331              		.loc 1 65 80 discriminator 3 view .LVU75
+ 332 0194 0300A0E1 		mov	r0, r3
+ 333 0198 FEFFFFEB 		bl	__aeabi_i2f
+ 334              	.LVL46:
+ 335 019c 081098E5 		ldr	r1, [r8, #8]	@ float
+ 336 01a0 FEFFFFEB 		bl	__aeabi_fmul
+ 337              	.LVL47:
+ 338              		.loc 1 65 84 discriminator 3 view .LVU76
+ 339 01a4 0910A0E1 		mov	r1, r9
+ 340 01a8 FEFFFFEB 		bl	__aeabi_fdiv
+ 341              	.LVL48:
+ 342 01ac 0010A0E1 		mov	r1, r0
+ 343              		.loc 1 65 77 discriminator 3 view .LVU77
+ 344 01b0 0B00A0E1 		mov	r0, fp
+ 345 01b4 FEFFFFEB 		bl	__aeabi_fsub
+ 346              	.LVL49:
+ 347 01b8 FEFFFFEB 		bl	__aeabi_f2d
+ 348              	.LVL50:
+ 349              		.loc 1 65 48 discriminator 3 view .LVU78
+ 350 01bc FC209FE5 		ldr	r2, .L25+16
+ 351 01c0 FC309FE5 		ldr	r3, .L25+20
+ 352 01c4 FEFFFFEB 		bl	__aeabi_dmul
+ 353              	.LVL51:
+ 354 01c8 FEFFFFEB 		bl	sin
+ 355              	.LVL52:
+ 356 01cc 0020A0E1 		mov	r2, r0
+ 357 01d0 0130A0E1 		mov	r3, r1
+ 358              		.loc 1 65 30 discriminator 3 view .LVU79
+ 359 01d4 016086E2 		add	r6, r6, #1
+ 360              	.LVL53:
+ 361              		.loc 1 65 33 discriminator 3 view .LVU80
+ 362 01d8 0600A0E1 		mov	r0, r6
+ 363              		.loc 1 65 48 discriminator 3 view .LVU81
+ 364 01dc 0C008DE8 		stm	sp, {r2-r3}
+ 365              	.LVL54:
+  66:modes.c       ****       // Outputs the sine wave to the Motors
+  67:modes.c       ****       bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(l_mot[i]));
+ 366              		.loc 1 67 7 is_stmt 1 discriminator 3 view .LVU82
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 367              		.loc 1 65 33 is_stmt 0 discriminator 3 view .LVU83
+ 368 01e0 FEFFFFEB 		bl	__aeabi_i2f
+ 369              	.LVL55:
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 370              		.loc 1 65 33 discriminator 3 view .LVU84
+ 371 01e4 001098E5 		ldr	r1, [r8]	@ float
+ 372 01e8 FEFFFFEB 		bl	__aeabi_fmul
+ 373              	.LVL56:
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 374              		.loc 1 65 37 discriminator 3 view .LVU85
+ 375 01ec 0910A0E1 		mov	r1, r9
+ 376 01f0 FEFFFFEB 		bl	__aeabi_fdiv
+ 377              	.LVL57:
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 378              		.loc 1 65 18 discriminator 3 view .LVU86
+ 379 01f4 FEFFFFEB 		bl	__aeabi_f2iz
+ 380              	.LVL58:
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 381              		.loc 1 65 46 discriminator 3 view .LVU87
+ 382 01f8 000CA0E1 		lsl	r0, r0, #24
+ 383 01fc 400CA0E1 		asr	r0, r0, #24
+ 384 0200 FEFFFFEB 		bl	__aeabi_i2d
+ 385              	.LVL59:
+ 386 0204 0C009DE8 		ldmia	sp, {r2-r3}
+ 387 0208 FEFFFFEB 		bl	__aeabi_dmul
+ 388              	.LVL60:
+  65:modes.c       ****       // Outputs the sine wave to the Motors
+ 389              		.loc 1 65 16 discriminator 3 view .LVU88
+ 390 020c FEFFFFEB 		bl	__aeabi_d2iz
+ 391              	.LVL61:
+ 392              		.loc 1 67 45 discriminator 3 view .LVU89
+ 393 0210 000CA0E1 		lsl	r0, r0, #24
+ 394 0214 400CA0E1 		asr	r0, r0, #24
+ 395 0218 FEFFFFEB 		bl	__aeabi_i2f
+ 396              	.LVL62:
+ 397 021c FF15A0E3 		mov	r1, #1069547520
+ 398 0220 FEFFFFEB 		bl	__aeabi_fmul
+ 399              	.LVL63:
+ 400 0224 FEFFFFEB 		bl	__aeabi_f2iz
+ 401              	.LVL64:
+ 402              		.loc 1 67 7 discriminator 3 view .LVU90
+ 403 0228 01B0DAE4 		ldrb	fp, [r10], #1	@ zero_extendqisi2
+ 404 022c FF2000E2 		and	r2, r0, #255
+ 405 0230 2F10A0E3 		mov	r1, #47
+ 406 0234 0B00A0E1 		mov	r0, fp
+ 407 0238 FEFFFFEB 		bl	bus_set
+ 408              	.LVL65:
+  63:modes.c       ****       // Calculates the sine wave
+ 409              		.loc 1 63 30 is_stmt 1 discriminator 3 view .LVU91
+  63:modes.c       ****       // Calculates the sine wave
+ 410              		.loc 1 63 20 discriminator 3 view .LVU92
+  63:modes.c       ****       // Calculates the sine wave
+ 411              		.loc 1 63 5 is_stmt 0 discriminator 3 view .LVU93
+ 412 023c 050056E3 		cmp	r6, #5
+ 413 0240 CCFFFF1A 		bne	.L16
+ 414              	.LBE11:
+  68:modes.c       ****     }
+  69:modes.c       ****     
+  70:modes.c       ****     // Make sure there is some delay, so that the timer output is not zero
+  71:modes.c       ****     pause(ONE_MS);
+ 415              		.loc 1 71 5 is_stmt 1 view .LVU94
+ 416 0244 7C009FE5 		ldr	r0, .L25+24
+ 417 0248 FEFFFFEB 		bl	pause
+ 418              	.LVL66:
+  72:modes.c       **** 
+  73:modes.c       ****   } while (reg8_table[REG8_MODE] == IMODE_SINE_DEMO);
+ 419              		.loc 1 73 11 view .LVU95
+ 420              		.loc 1 73 22 is_stmt 0 view .LVU96
+ 421 024c 78309FE5 		ldr	r3, .L25+28
+ 422 0250 0030D3E5 		ldrb	r3, [r3]	@ zero_extendqisi2
+ 423              		.loc 1 73 3 view .LVU97
+ 424 0254 020053E3 		cmp	r3, #2
+ 425 0258 B7FFFF0A 		beq	.L17
+ 426              	.LBB12:
+  74:modes.c       **** 
+  75:modes.c       ****   for(int i = 0; i<N_body; i++) {
+ 427              		.loc 1 75 11 view .LVU98
+ 428 025c 0040A0E3 		mov	r4, #0
+ 429              	.LVL67:
+  76:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+  77:modes.c       ****     pause(ONE_SEC);
+ 430              		.loc 1 77 5 view .LVU99
+ 431 0260 68609FE5 		ldr	r6, .L25+32
+ 432              	.LVL68:
+ 433              	.L18:
+  76:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 434              		.loc 1 76 5 is_stmt 1 discriminator 3 view .LVU100
+ 435 0264 0150D7E4 		ldrb	r5, [r7], #1	@ zero_extendqisi2
+ 436 0268 0020A0E3 		mov	r2, #0
+ 437 026c 2F10A0E3 		mov	r1, #47
+ 438 0270 0500A0E1 		mov	r0, r5
+ 439 0274 FEFFFFEB 		bl	bus_set
+ 440              	.LVL69:
+ 441              		.loc 1 77 5 discriminator 3 view .LVU101
+ 442 0278 0600A0E1 		mov	r0, r6
+ 443 027c FEFFFFEB 		bl	pause
+ 444              	.LVL70:
+  78:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_MODE, MODE_IDLE);
+ 445              		.loc 1 78 5 discriminator 3 view .LVU102
+  75:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 446              		.loc 1 75 29 is_stmt 0 discriminator 3 view .LVU103
+ 447 0280 014084E2 		add	r4, r4, #1
+ 448              	.LVL71:
+ 449              		.loc 1 78 5 discriminator 3 view .LVU104
+ 450 0284 0020A0E3 		mov	r2, #0
+ 451 0288 2810A0E3 		mov	r1, #40
+ 452 028c 0500A0E1 		mov	r0, r5
+ 453 0290 FEFFFFEB 		bl	bus_set
+ 454              	.LVL72:
+  75:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 455              		.loc 1 75 28 is_stmt 1 discriminator 3 view .LVU105
+  75:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 456              		.loc 1 75 18 discriminator 3 view .LVU106
+  75:modes.c       ****     bus_set(MOTOR_ADDR[i], MREG_SETPOINT, DEG_TO_OUTPUT_BODY(0.0));
+ 457              		.loc 1 75 3 is_stmt 0 discriminator 3 view .LVU107
+ 458 0294 050054E3 		cmp	r4, #5
+ 459 0298 F1FFFF1A 		bne	.L18
+ 460              	.LBE12:
+  79:modes.c       ****   }
+  80:modes.c       ****  
+  81:modes.c       **** 
+  82:modes.c       ****   // Back to the "normal" green
+  83:modes.c       ****   set_color(2);
+ 461              		.loc 1 83 3 is_stmt 1 view .LVU108
+ 462 029c 0200A0E3 		mov	r0, #2
+ 463 02a0 FEFFFFEB 		bl	set_color
+ 464              	.LVL73:
+  84:modes.c       **** }
+ 465              		.loc 1 84 1 is_stmt 0 view .LVU109
+ 466 02a4 0CD08DE2 		add	sp, sp, #12
+ 467              	.LCFI5:
+ 468              		.cfi_def_cfa_offset 36
+ 469              		@ sp needed
+ 470 02a8 F04FBDE8 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 471              	.LCFI6:
+ 472              		.cfi_restore 14
+ 473              		.cfi_restore 11
+ 474              		.cfi_restore 10
+ 475              		.cfi_restore 9
+ 476              		.cfi_restore 8
+ 477              		.cfi_restore 7
+ 478              		.cfi_restore 6
+ 479              		.cfi_restore 5
+ 480              		.cfi_restore 4
+ 481              		.cfi_def_cfa_offset 0
+ 482              	.LVL74:
+ 483              		.loc 1 84 1 view .LVU110
+ 484 02ac 1EFF2FE1 		bx	lr
+ 485              	.L26:
+ 486              		.align	2
+ 487              	.L25:
+ 488 02b0 00000000 		.word	.LANCHOR1
+ 489 02b4 0000A040 		.word	1084227584
+ 490 02b8 8096184B 		.word	1259902592
+ 491 02bc 00000000 		.word	.LANCHOR0
+ 492 02c0 182D4454 		.word	1413754136
+ 493 02c4 FB211940 		.word	1075388923
+ 494 02c8 10270000 		.word	10000
+ 495 02cc 00000000 		.word	reg8_table
+ 496 02d0 80969800 		.word	10000000
+ 497              		.cfi_endproc
+ 498              	.LFE1:
+ 500              		.align	2
+ 501              		.global	main_mode_loop
+ 502              		.syntax unified
+ 503              		.arm
+ 505              	main_mode_loop:
+ 506              	.LFB2:
+  85:modes.c       **** 
+  86:modes.c       **** void main_mode_loop()
+  87:modes.c       **** {
+ 507              		.loc 1 87 1 is_stmt 1 view -0
+ 508              		.cfi_startproc
+ 509              		@ Function supports interworking.
+ 510              		@ args = 0, pretend = 0, frame = 0
+ 511              		@ frame_needed = 0, uses_anonymous_args = 0
+  88:modes.c       ****   // Registers the register handler callback function
+  89:modes.c       ****   radio_add_reg_callback(register_handler);
+ 512              		.loc 1 89 3 view .LVU112
+  87:modes.c       ****   // Registers the register handler callback function
+ 513              		.loc 1 87 1 is_stmt 0 view .LVU113
+ 514 02d4 70402DE9 		push	{r4, r5, r6, lr}
+ 515              	.LCFI7:
+ 516              		.cfi_def_cfa_offset 16
+ 517              		.cfi_offset 4, -16
+ 518              		.cfi_offset 5, -12
+ 519              		.cfi_offset 6, -8
+ 520              		.cfi_offset 14, -4
+  90:modes.c       **** 
+  91:modes.c       ****   reg8_table[REG8_MODE] = IMODE_IDLE;
+ 521              		.loc 1 91 25 view .LVU114
+ 522 02d8 0040A0E3 		mov	r4, #0
+ 523 02dc 4C509FE5 		ldr	r5, .L37
+  89:modes.c       **** 
+ 524              		.loc 1 89 3 view .LVU115
+ 525 02e0 4C009FE5 		ldr	r0, .L37+4
+ 526 02e4 FEFFFFEB 		bl	radio_add_reg_callback
+ 527              	.LVL75:
+ 528              		.loc 1 91 3 is_stmt 1 view .LVU116
+ 529 02e8 48609FE5 		ldr	r6, .L37+8
+ 530              		.loc 1 91 25 is_stmt 0 view .LVU117
+ 531 02ec 0040C5E5 		strb	r4, [r5]
+  92:modes.c       **** 
+  93:modes.c       ****   // Shuts down all the non head LEDs
+  94:modes.c       ****   for (int i = 0 ; i < 5 ; i++){
+ 532              		.loc 1 94 3 is_stmt 1 view .LVU118
+ 533              	.LBB13:
+ 534              		.loc 1 94 8 view .LVU119
+ 535              	.LVL76:
+ 536              		.loc 1 94 20 view .LVU120
+ 537              	.L28:
+ 538              	.LBB14:
+  95:modes.c       ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 539              		.loc 1 95 5 discriminator 3 view .LVU121
+ 540 02f0 0020A0E3 		mov	r2, #0
+ 541 02f4 0110A0E3 		mov	r1, #1
+ 542 02f8 0100D6E4 		ldrb	r0, [r6], #1	@ zero_extendqisi2
+ 543              	.LBE14:
+  94:modes.c       ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 544              		.loc 1 94 29 is_stmt 0 discriminator 3 view .LVU122
+ 545 02fc 014084E2 		add	r4, r4, #1
+ 546              	.LVL77:
+ 547              	.LBB15:
+ 548              		.loc 1 95 5 discriminator 3 view .LVU123
+ 549 0300 FEFFFFEB 		bl	set_reg_value_dw
+ 550              	.LVL78:
+ 551              	.LBE15:
+  94:modes.c       ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 552              		.loc 1 94 28 is_stmt 1 discriminator 3 view .LVU124
+  94:modes.c       ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 553              		.loc 1 94 20 discriminator 3 view .LVU125
+  94:modes.c       ****     set_reg_value_dw(MOTOR_ADDR[i], MREG32_LED, 0);
+ 554              		.loc 1 94 3 is_stmt 0 discriminator 3 view .LVU126
+ 555 0304 050054E3 		cmp	r4, #5
+ 556 0308 F8FFFF1A 		bne	.L28
+ 557              	.LBE13:
+  96:modes.c       ****   }
+  97:modes.c       **** 
+  98:modes.c       ****   while (1)
+  99:modes.c       ****   {
+ 100:modes.c       ****     switch(reg8_table[REG8_MODE])
+ 101:modes.c       ****     {
+ 102:modes.c       ****       case IMODE_IDLE:
+ 103:modes.c       ****         break;
+ 104:modes.c       ****       case IMODE_SINE_DEMO:
+ 105:modes.c       ****         sinus_mode();
+ 106:modes.c       ****         break;
+ 107:modes.c       ****       default:
+ 108:modes.c       ****         reg8_table[REG8_MODE] = IMODE_IDLE;
+ 558              		.loc 1 108 31 view .LVU127
+ 559 030c 0040A0E3 		mov	r4, #0
+ 560              	.LVL79:
+ 561              	.L30:
+  98:modes.c       ****   {
+ 562              		.loc 1 98 3 is_stmt 1 view .LVU128
+ 100:modes.c       ****     {
+ 563              		.loc 1 100 5 view .LVU129
+ 100:modes.c       ****     {
+ 564              		.loc 1 100 22 is_stmt 0 view .LVU130
+ 565 0310 0030D5E5 		ldrb	r3, [r5]	@ zero_extendqisi2
+ 100:modes.c       ****     {
+ 566              		.loc 1 100 5 view .LVU131
+ 567 0314 FF3013E2 		ands	r3, r3, #255
+ 568 0318 FCFFFF0A 		beq	.L30
+ 569 031c 020053E3 		cmp	r3, #2
+ 570              		.loc 1 108 31 view .LVU132
+ 571 0320 0040C515 		strbne	r4, [r5]
+ 100:modes.c       ****     {
+ 572              		.loc 1 100 5 view .LVU133
+ 573 0324 F9FFFF1A 		bne	.L30
+ 105:modes.c       ****         break;
+ 574              		.loc 1 105 9 is_stmt 1 view .LVU134
+ 575 0328 FEFFFFEB 		bl	sinus_mode
+ 576              	.LVL80:
+ 106:modes.c       ****       default:
+ 577              		.loc 1 106 9 view .LVU135
+ 578 032c F7FFFFEA 		b	.L30
+ 579              	.L38:
+ 580              		.align	2
+ 581              	.L37:
+ 582 0330 00000000 		.word	reg8_table
+ 583 0334 00000000 		.word	register_handler
+ 584 0338 00000000 		.word	.LANCHOR1
+ 585              		.cfi_endproc
+ 586              	.LFE2:
+ 588              		.global	MOTOR_ADDR
+ 589              		.global	N_body
+ 590              		.section	.rodata
+ 591              		.set	.LANCHOR1,. + 0
+ 594              	MOTOR_ADDR:
+ 595 0000 1916181A 		.ascii	"\031\026\030\032\005"
+ 595      05
+ 598              	N_body:
+ 599 0005 05       		.byte	5
+ 600              		.bss
+ 601              		.align	2
+ 602              		.set	.LANCHOR0,. + 0
+ 605              	AMP:
+ 606 0000 00000000 		.space	4
+ 609              	FREQ:
+ 610 0004 00000000 		.space	4
+ 613              	LAG:
+ 614 0008 00000000 		.space	4
+ 615              		.text
+ 616              	.Letext0:
+ 617              		.file 2 "c:\\arm-gcc\\arm-none-eabi\\include\\machine\\_default_types.h"
+ 618              		.file 3 "c:\\arm-gcc\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 619              		.file 4 "../firmware/radio.h"
+ 620              		.file 5 "../firmware/registers.h"
+ 621              		.file 6 "../firmware/robot.h"
+ 622              		.file 7 "../firmware/sysTime.h"
+ 623              		.file 8 "../firmware/hardware.h"
+ 624              		.file 9 "../../common/regdefs.h"
+ 625              		.file 10 "c:\\arm-gcc\\arm-none-eabi\\include\\math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 modes.c
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:24     .text:00000000 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:28     .text:00000000 register_handler
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:183    .text:000000e8 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:198    .text:000000fc $a
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:203    .text:000000fc sinus_mode
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:488    .text:000002b0 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:500    .text:000002d4 $a
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:505    .text:000002d4 main_mode_loop
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:582    .text:00000330 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:594    .rodata:00000000 MOTOR_ADDR
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:598    .rodata:00000005 N_body
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:601    .bss:00000000 $d
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:605    .bss:00000000 AMP
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:609    .bss:00000004 FREQ
+C:\Users\vlabbe\AppData\Local\Temp\ccxMFOK0.s:613    .bss:00000008 LAG
+
+UNDEFINED SYMBOLS
+__aeabi_ui2f
+__aeabi_fmul
+__aeabi_f2d
+__aeabi_ddiv
+__aeabi_dadd
+__aeabi_d2f
+__aeabi_dmul
+__aeabi_fdiv
+__aeabi_fadd
+__aeabi_i2f
+__aeabi_fsub
+__aeabi_f2iz
+__aeabi_i2d
+__aeabi_d2iz
+getSysTICs
+init_body_module
+start_pid
+getElapsedSysTICs
+sin
+bus_set
+pause
+set_color
+reg8_table
+radio_add_reg_callback
+set_reg_value_dw
