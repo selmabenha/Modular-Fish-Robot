@@ -1,6 +1,3 @@
-Sure — here is the full `README.md` in copy-paste ready Markdown:
-
-````md
 # Modular Fish Robot – ME-425 Robotics Practicals
 
 Programming, control, and experimental characterization of a modular lamprey-inspired swimming robot using embedded C/C++, PC-side C++ control software, and vision-based tracking.
@@ -206,11 +203,3 @@ python scripts/process_data.py
 * Liam Gibbons (SCIPER 300299)
 
 Master in Robotics – EPFL
-
-```
-
-If you want, I can also:
-- add **badges (build passing, language, license)**  
-- make a **short “GitHub front-page version”**
-- or convert it into a **professional research repo README with figures + GIF placeholders**
-```
